@@ -3,7 +3,15 @@ export class ChebyshevApproximation {
     readonly xMin: number
     readonly xMax: number
 
-    constructor(f: (x: number) => number, xMin: number, xMax: number, order: number, coeffCount: number) {
+    constructor(
+        f: (x: number) => number, 
+        xMin: number, 
+        xMax: number, 
+        order: number, 
+        coeffCount: number,
+        matchLeft: boolean,
+        matchRight: boolean
+    ) {
         this.xMin = xMin
         this.xMax = xMax
 
@@ -20,6 +28,23 @@ export class ChebyshevApproximation {
                 this.coeffs[j] += 2.0 * fVal * weight / order
             }
         }
+
+         // Add a linear term a + bx that offsets the left and right
+        // ends to the desired values
+        let xMinOffs = 0
+        let xMaxOffs = 0
+        if (matchLeft) {
+            xMinOffs = f(xMin) - this.evaluate(xMin)
+        } 
+        if (matchRight) {
+            xMaxOffs = f(xMax) - this.evaluate(xMax)
+        }
+            
+        let a = 0.5 * (xMaxOffs + xMinOffs);
+        let b = 0.5 * (xMaxOffs - xMinOffs);
+        this.coeffs[0] += 2 * a; // multiplied by 2.0 * 0.5 = 1 due to c0 pre-bake multiply above
+        this.coeffs[1] += b;
+
 
         this.coeffs = this.coeffs.filter((_, i) => i < coeffCount)
     }

@@ -1,69 +1,66 @@
 // import reactLogo from './assets/react.svg'
 // import viteLogo from '/vite.svg'
 
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useCanvas } from "./use-canvas"
 import { IPlotParams, drawPlot } from "./plot"
 import { ChebyshevApproximation } from "./chebyshev-approx"
+import { TargetLanguage, generateCode, targetLanguages } from "./generate-code"
 
-enum TargetLanguage {
-  python = "Python",
-  c = "C",
-  rust = "Rust",
-  java = "Java"
-}
 
-const CoefficientList = (props: { coeffs: number[] }) => {
-  return <div>
+const CoefficientList = (props: { coefficients: number[] }) => {
+  const maxAbsCoeff = Math.max(...props.coefficients.map((c) => Math.abs(c)))
+  const relativeBarLengths = props.coefficients.map((c) => Math.abs(c) / maxAbsCoeff)
+  return <div style={{width: "100%"}}>
     Coefficients
-    <ul>
-      { props.coeffs.map((c, ci) => {
-        return <li key={ci}>c{ci} = {c}</li>
+      { props.coefficients.map((c, ci) => {
+        return <div style={{ width: "100%"}} key={ci}>
+          <div style={{ display: "flex"}}>
+            <div style={{width: "30px"}} >c<sub>{ci}</sub></div>
+            <div style={{width: Math.round(100 * relativeBarLengths[ci]) + "%", marginTop: "2px", marginBottom: "2px", backgroundColor: "rgba(0, 150, 0, 0.2)"}}>{c}</div>
+          </div>
+        </div>
       }) }
-    </ul>
+    
   </div>
 }
 
-const CodeSnippets = (props: {}) => {
+const CodeSnippets = (props: {
+  coefficients: number[], 
+  xMin: number, 
+  xMax: number
+}) => {
+  const [targetLanguage, setTargetLanguage] = useState<TargetLanguage>(TargetLanguage.c)
+  const codeSnippet = generateCode(targetLanguage, props.coefficients, props.xMin, props.xMax)
   return <div>
-      Language  <select>
-        <option value="0">Python</option>
-        <option value="1">C</option>
-        <option value="2">Rust</option>
-        <option value="3">Java</option>
-        <option value="4">Javascript</option>
+      Language  <select value={targetLanguage} onChange={e => setTargetLanguage(e.target.value as TargetLanguage)} >      
+        { targetLanguages.map((lang, idx) => <option key={idx} value={lang}>{lang}</option> ) }
       </select>
-     <pre className="code">
-              let x_rel_2 = -2.0 + (x - self.x_min) * self.range_scale;
-
-              let mut d = 0.0;
-
-              let mut dd = 0.0;
-
-              let mut temp;
-
-              for cj in self.coeffs_internal.iter().skip(1).rev()
-              temp = d;
-              d = x_rel_2 * d - dd + cj;
-              dd = temp;
-
-
-              0.5 * x_rel_2 * d - dd + self.coeffs_internal[0]
-            </pre>
+     <pre className="code">{ codeSnippet }</pre>
+     <button onClick={() => {
+        ((window.navigator as any).clipboard as any).writeText(codeSnippet)
+     }} >Copy</button>
   </div>
 }
 
-
-const initialTargetFunction = "Math.exp(x) * Math.sin(x^2)"
+const initialTargetFunction = "Math.exp(-2 * x) * Math.sin(x * x)"
+const initialXMin = 0
+const initialXMax = 3.1
 const maxOrder = 20
+const initialOrder = 8
+const initialNumTerms = 8
 
 const App = () => {
   const [showCode, setShowCode] = useState(false)
   const [targetFunctionString, setTargetFunctionString] = useState(initialTargetFunction)
-  const [xMin, setXMin] = useState(0)
-  const [xMax, setXMax] = useState(1)
-  const [order, setOrder] = useState(10)
-  const [numTerms, setNumTerms] = useState(10)
+  const [xMin, setXMin] = useState(initialXMin)
+  const [xMax, setXMax] = useState(initialXMax)
+  const [order, setOrder] = useState(initialOrder)
+  const [numTerms, setNumTerms] = useState(initialNumTerms)
+  const [matchLeft, setMatchLeft] = useState(false)
+  const [matchRight, setMatchRight] = useState(false)
+  
+  const [coefficients, setCoefficients] = useState<number[]>([])
   const approxPlotParams = useRef<IPlotParams | null>(null)
   const errorPlotParams = useRef<IPlotParams | null>(null)
 
@@ -110,7 +107,9 @@ const App = () => {
           (x: number) => { // x needs to be in scope for eval
             return eval(targetFunctionString) as number
           }, 
-          xMin, xMax, order, numTerms)
+          xMin, xMax, order, order, matchLeft, matchRight)
+        console.log(matchLeft, matchRight)
+        setCoefficients(approx.coeffs)
         const functionPoints = xValues.map((x, xi) => {
           return { x, y: fValues[xi]}
         })
@@ -123,12 +122,12 @@ const App = () => {
           graphs: [
             {
               color: "black",
-              legend: targetFunctionString,
+              legend: "f(x) = " + targetFunctionString,
               points: functionPoints
             },
             {
               color: "green",
-              legend: "N order approximation",
+              legend: "Order " + order + " approximation",
               points: approximationPoints
             }
           ]
@@ -155,9 +154,7 @@ const App = () => {
     }
     redrawApproxCanvas()
     redrawErrorCanvas()
-  }, [targetFunctionString, xMin, xMax, order, numTerms])
-
-  
+  }, [targetFunctionString, xMin, xMax, order, numTerms, matchLeft, matchRight])
 
   return (
     <>
@@ -169,28 +166,30 @@ const App = () => {
           <div>?</div>
         </div>
         <div id="gui-controls-bar">
-          <div style={{ display: "flex", flexDirection: "row" }}>
-            <div>
-              f(x) <input value={targetFunctionString} onChange={e => setTargetFunctionString(e.target.value)}></input>
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            <div style={{ display: "flex", flexDirection: "row" }}>
+              <div>
+                f(x) <input value={targetFunctionString} onChange={e => setTargetFunctionString(e.target.value)}></input>
+              </div>
+              <div>
+                Match left <input checked={matchLeft} onChange={_ => setMatchLeft((prev) => !prev)} type="checkbox"></input>
+                right <input checked={matchRight} onChange={_ => setMatchRight((prev) => !prev)} type="checkbox"></input>
+              </div>
             </div>
-            <div>
-              x min <input value={xMin} onChange={e => setXMin(parseFloat(e.target.value))} type="number"></input>
-            </div>
-            <div>
-              x max <input value={xMax} onChange={e => setXMax(parseFloat(e.target.value))} type="number"></input>
+            <div style={{ display: "flex", flexDirection: "row" }}>
+              <div>
+                x min <input value={xMin} onChange={e => setXMin(parseFloat(e.target.value))} type="number"></input>
+              </div>
+              <div>
+                x max <input value={xMax} onChange={e => setXMax(parseFloat(e.target.value))} type="number"></input>
+              </div>
             </div>
           </div>
           <div style={{ display: "flex", flexDirection: "row" }}>
             <div>
               Order <input value={order} onChange={e => setOrder(parseFloat(e.target.value))}  min="1" max={maxOrder} type="range"></input>
             </div>
-            <div>
-              N terms  <input value={numTerms} onChange={e => setNumTerms(parseFloat(e.target.value))} min="1" max={maxOrder} type="range"></input>
-            </div>
-            <div>
-              Match left <input type="checkbox"></input>
-              Match right <input type="checkbox"></input>
-            </div>
+            
           </div>
         </div>
       </div>
@@ -208,7 +207,7 @@ const App = () => {
             <button onClick={() => setShowCode(false)}>Coefficients</button>
             <button onClick={() => setShowCode(true)}>Code</button>
           </div>
-          { showCode ? <CodeSnippets/> : <CoefficientList coeffs={[1,2,3,4,5]} /> }
+          { showCode ? <CodeSnippets coefficients={coefficients} xMin={xMin} xMax={xMax} /> : <CoefficientList coefficients={coefficients} /> }
         </div>
       </div>
     </>
