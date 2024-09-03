@@ -1,5 +1,6 @@
 $breakpoint-sm: 576px;
 $result-panel-width: 300px;
+$padding: 10px;
 
 :root {
   font-family: Inter;
@@ -30,7 +31,7 @@ body,
 }
 
 #top-bar-container {
-  // background-color: red;
+  padding: $padding;
 }
 
 #title-bar {
@@ -51,8 +52,13 @@ body,
 #graphs-container {
   display: flex;
   flex-direction: column;
-  flex: 1;
   // background-color: orange;
+  // height: 100%;
+  
+  @media only screen and (min-width: $breakpoint-sm) {
+    padding-bottom: 0;
+    flex: 1;
+  }
 }
 
 #approx-graph {
@@ -60,8 +66,12 @@ body,
   width: 100%;
   display: flex;
   align-items: stretch;
-  flex: 1;
-  min-height: 100px;
+  
+  flex: 1;  
+  padding-bottom: 70%;
+  @media only screen and (min-width: $breakpoint-sm) {
+    padding-bottom: 0;
+  }
 }
 
 #error-graph {
@@ -69,7 +79,11 @@ body,
   width: 100%;
   display: flex;
   align-items: stretch;
-  min-height: 140px;
+  padding-bottom: 30%;
+  @media only screen and (min-width: $breakpoint-sm) {
+    padding-bottom: 0;
+    height: 140px;
+  }
 }
 
 canvas {
@@ -79,10 +93,14 @@ canvas {
 
 #result-container {
   width: 100%;
+  display: flex;
+  flex-direction: column;
   @media only screen and (min-width: $breakpoint-sm) {
     width: $result-panel-width;
   }
- //  background-color: blue;
+  background-color: blue;
+  
+  overflow-y: scroll;
 }
 
 .code {
@@ -92,8 +110,8 @@ canvas {
 }
 
 body {
-  margin: 15px;
   display: flex;
+  margin: 0;
 }
 
 /*button {

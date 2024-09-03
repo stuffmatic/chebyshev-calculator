@@ -55,6 +55,7 @@ export const drawPlot = (
     params : IPlotParams
 ) => {
     context.clearRect(0, 0, width, height)
+    context.font = "Inter 20px"
     const bounds = getBounds(params.graphs)
 
     const graphBox = {
