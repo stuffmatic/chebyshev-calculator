@@ -6,9 +6,7 @@ import { useCanvas } from "./use-canvas"
 import { IPlotParams, drawPlot } from "./plot"
 import { ChebyshevApproximation } from "./chebyshev-approx"
 import { TargetLanguage, generateCode, targetLanguages } from "./generate-code"
-
-import { Button, Checkbox, Form, Input, InputNumber, Segmented, Select, Slider } from "antd"
-
+import { Button, Checkbox, Input, Segmented, Select, Slider } from "antd"
 
 const CoefficientList = (props: { coefficients: number[] }) => {
   const maxAbsCoeff = Math.max(...props.coefficients.map((c) => Math.abs(c)))
@@ -49,10 +47,10 @@ const CodeSnippets = (props: {
         })
       } />
 
-    <pre className="code">{codeSnippet}</pre>
     <Button onClick={() => {
       ((window.navigator as any).clipboard as any).writeText(codeSnippet)
     }}>Copy</Button>
+    <pre className="code">{codeSnippet}</pre>
 
   </div>
 }
@@ -68,6 +66,14 @@ const numberStringIsValid = (string: string): boolean => {
   const parseResult = parseFloat(string)
   const isValid = !isNaN(parseResult) && isFinite(parseResult)
   return isValid
+}
+
+const ScrollableContent = (props: { children: React.ReactNode }) => {
+  return <div style={{ backgroundColor: "orange", flex: 1, position: "relative", overflow: "auto" }}>
+    <div style={{ position: "absolute" }}>
+      { props.children }
+    </div>
+  </div>
 }
 
 const App = () => {
@@ -187,7 +193,7 @@ const App = () => {
         <div id="title-bar">
           <div>
             <strong>Chebyshev approximation calculator</strong> <a href="https://github.com/stuffmatic/chebyshev-calculator">GitHub</a>
-            <div style={{fontSize: "80%"}}>Approximates functions as weighted sums of <a href="#">Chebyshev polynomials</a>.</div>
+            <div style={{fontSize: "80%"}}>Generates code for efficiently approximating mathematical functions.</div>
           </div>
           <div>?</div>
         </div>
@@ -255,15 +261,18 @@ const App = () => {
           </div>
         </div>
         <div id="result-container">
-          <Segmented
-            options={['Coefficients', 'Generate code']}
-            onChange={(value) => {
-              setShowCode(value == "Generate code")
-            }}
-          />
-          
-          {showCode ? <CodeSnippets coefficients={coefficients} xMin={xMin} xMax={xMax} /> : <CoefficientList coefficients={coefficients} />}
-          
+          <div>
+            <Segmented
+              options={['Coefficients', 'Generate code']}
+              onChange={(value) => {
+                setShowCode(value == "Generate code")
+              }}
+            />
+          </div>
+          <ScrollableContent>
+            {showCode ? <CodeSnippets coefficients={coefficients} xMin={xMin} xMax={xMax} /> : <CoefficientList coefficients={coefficients} /> }
+
+          </ScrollableContent>
         </div>
       </div>
     </>
