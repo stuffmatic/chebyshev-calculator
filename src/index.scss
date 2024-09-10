@@ -37,10 +37,10 @@ $padding: 12px;
   color: black;
   background-color: white;
 
-  font-synthesis: none;
+  /* font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  -moz-osx-font-smoothing: grayscale; */
 }
 
 html,
@@ -110,10 +110,10 @@ body,
   width: 100%;
   display: flex;
   align-items: stretch;
-  padding-bottom: 30%;
+  padding-bottom: 70%;
   @media only screen and (min-width: $breakpoint-sm) {
     padding-bottom: 0;
-    flex: 1;
+    flex: 3;
   }
 }
 
@@ -194,6 +194,18 @@ canvas {
     width: $result-panel-width;
   }
   // background-color: blue;
+}
+
+#segmented-button-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding-top: 20px;
+  
+  @media only screen and (min-width: $breakpoint-sm) {
+    justify-content: left;
+    padding-top: 0;
+  }
 }
 
 .code {

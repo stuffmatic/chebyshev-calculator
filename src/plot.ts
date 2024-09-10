@@ -45,17 +45,29 @@ const getBounds = (graphs: IPlotGraph[]) => {
     }
 }
 
-const axisGutterWidth = 10
+const axisGutterWidth = 16
 const legendLineLength = 30
-const legendPadding = 6
+const legendPadding = 7
 const legendHeight = 17
-const fontSize = 11
+const fontSize = 12
 const graphLineWidth = 1.4
 const axisLineWidth = 1
-const axisColor = "#d0d0d0"
+const axisColor = "#c0c0c0"
 const labelColor = "#000000"
-const plotBgColor = "#f3f3f3"
+const plotBgColor = "#fafafa"
 const lineDashPattern = [graphLineWidth, 8]
+
+export const numberString = (number: number): string => {
+    const exponential = Math.abs(number) < 0.0001 && number != 0
+    let result = exponential ? number.toExponential(6) : number.toPrecision(8)
+    while ((result.endsWith("0") || result.endsWith(".")) && !exponential) {
+        result = result.slice(0, result.length - 1)
+        if (result == "0") {
+            break
+        }
+    }
+    return result
+}
 
 export const drawPlot = (
     context: CanvasRenderingContext2D, 
@@ -163,18 +175,18 @@ export const drawPlot = (
     const xLabelsY = graphBox.top + graphBox.height + 0.7 * axisGutterWidth
     context.fillText("x", graphBox.left + 0.5 * graphBox.width, xLabelsY)
     context.textAlign = "left"
-    context.fillText(params.graphs[0].points[0].x.toString(), graphBox.left + 3, xLabelsY)
+    context.fillText(numberString(params.graphs[0].points[0].x), graphBox.left + 3, xLabelsY)
     context.textAlign = "right"
-    context.fillText(params.graphs[0].points[params.graphs[0].points.length - 1].x.toString(), graphBox.left + graphBox.width - 4, xLabelsY)
+    context.fillText(numberString(params.graphs[0].points[params.graphs[0].points.length - 1].x), graphBox.left + graphBox.width - 4, xLabelsY)
 
     if (!params.hideYAxisLabels) {
         context.save()
         context.translate(graphBox.left, graphBox.top + graphBox.height)
         context.rotate(-0.5 * Math.PI)
         context.textAlign = "left"
-        context.fillText(bounds.yMin.toString(), 3, -0.5 * axisGutterWidth)
+        context.fillText(numberString(bounds.yMin), 3, -0.5 * axisGutterWidth)
         context.textAlign = "right"
-        context.fillText(bounds.yMax.toString(), graphBox.height - 3, -0.5 * axisGutterWidth)
+        context.fillText(numberString(bounds.yMax), graphBox.height - 3, -0.5 * axisGutterWidth)
         context.restore()
     }
 

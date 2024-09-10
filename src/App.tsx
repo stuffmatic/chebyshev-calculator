@@ -3,7 +3,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import { useCanvas } from "./use-canvas"
-import { IPlotParams, drawPlot } from "./plot"
+import { IPlotParams, drawPlot, numberString } from "./plot"
 import { ChebyshevApproximation } from "./chebyshev-approx"
 import { TargetLanguage, generateCode, targetLanguages } from "./generate-code"
 import { Button, Checkbox, ConfigProvider, Input, Segmented, Select, Slider } from "antd"
@@ -109,6 +109,7 @@ const App = () => {
   const [numTerms, setNumTerms] = useState(initialNumTerms)
   const [matchLeft, setMatchLeft] = useState(false)
   const [matchRight, setMatchRight] = useState(false)
+  const [isShowingHelpModal, setIsShowingHelpModal] = useState(false)
 
   const [coefficients, setCoefficients] = useState<number[]>([])
   const approxPlotParams = useRef<IPlotParams | null>(null)
@@ -206,8 +207,8 @@ const App = () => {
               points: functionPoints
             },
             {
-              color: "green",
-              legend: "Degree " + order + " approximation",
+              color: "#52AE1F",
+              legend: "Degree " + (order - 1) + " approximation",
               points: approximationPoints
             }
           ]
@@ -223,7 +224,7 @@ const App = () => {
             {
               color: "red",
               dashed: true,
-              legend: "Max error " + maxError,
+              legend: "Max error " + numberString(maxError),
               points: [
                 { x: xMin, y: maxError }, { x: xMax, y: maxError }
               ]
@@ -267,7 +268,8 @@ const App = () => {
       <div id="top-bar-container">
         <div id="title-bar">
           <strong style={{ fontFamily: "InterBold", fontSize: "140%", marginBottom: "4px" }}>Chebyshev approximation calculator</strong>
-          <div style={{ fontSize: "90%" }}>Generates code for efficiently approximating mathematical functions. <a href="#">Huh?</a></div>
+          <div style={{ fontSize: "95%" }}>Generates code for efficiently approximating mathematical functions. 
+          <a onClick={() => setIsShowingHelpModal(true)}>Huh?</a></div>
         </div>
         <div id="gui-controls-bar">
             <div id="function-string-input">
@@ -329,19 +331,38 @@ const App = () => {
           </div>
         </div>
         <div id="result-container">
-          <Segmented
-            style={{marginBottom: "10px"}}
-            options={['Coefficients', 'Generated code']}
-            onChange={(value) => {
-              setShowCode(value == "Generated code")
-            }}
-          />
+          <div id="segmented-button-container">
+            <Segmented
+              style={{marginBottom: "10px"}}
+              options={['Coefficients', 'Generated code']}
+              onChange={(value) => {
+                setShowCode(value == "Generated code")
+              }}
+            />
+          </div>
 
           {showCode ?
             <GeneratedCode coefficients={coefficients} xMin={xMin} xMax={xMax} functionExpression={targetFunctionString} /> :
             <CoefficientList coefficients={coefficients} />}
         </div>
       </div>
+      { isShowingHelpModal ? 
+        <div style={{position: "absolute", justifyContent: "center", alignItems: "center", display: "flex", backgroundColor: "rgba(0, 0, 0, 0.8)", width: "100%", height: "100%"}}>
+            <div style={{ width: "300px", height: "400px", backgroundColor: "white", padding: "20px"}}>
+              <p>
+              This is a tool that generates code for approximating functions
+              of one variable on a given range. This can for example be useful
+              when standard functions like
+              sine, cosine etc are not available or too expensive to evaluate, as may be
+              the case in embedded environments.
+              </p>
+              <p>
+                Functions are approximated as sums of Chebyshev polynomials of increasing degree
+              </p>
+              <Button onClick={() => setIsShowingHelpModal(false)} >OK</Button>
+            </div>
+        </div> : null }
+      
     </ConfigProvider>
   )
 }
