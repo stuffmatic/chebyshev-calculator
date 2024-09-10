@@ -5,11 +5,13 @@ export interface IPlotPoint {
 export interface IPlotGraph {
     legend: string
     color: string
+    dashed?: boolean
     points: IPlotPoint[]
 }
 
 export interface IPlotParams {
-    graphs: IPlotGraph[]
+    graphs: IPlotGraph[],
+    hideYAxisLabels?: boolean
 }
 
 const getBounds = (graphs: IPlotGraph[]) => {
@@ -35,7 +37,7 @@ const getBounds = (graphs: IPlotGraph[]) => {
         })
     })
 
-    const yPad = 0.15
+    const yPad = 0.8
     return {
         ...bounds,
         yMin: bounds.yMin - 0.5 * yPad * (bounds.yMax - bounds.yMin),
@@ -43,10 +45,17 @@ const getBounds = (graphs: IPlotGraph[]) => {
     }
 }
 
-const axisGutterWidth = 20
-const legendPadding = 5
+const axisGutterWidth = 10
+const legendLineLength = 30
+const legendPadding = 6
 const legendHeight = 17
+const fontSize = 11
 const graphLineWidth = 1.4
+const axisLineWidth = 1
+const axisColor = "#d0d0d0"
+const labelColor = "#000000"
+const plotBgColor = "#f3f3f3"
+const lineDashPattern = [graphLineWidth, 8]
 
 export const drawPlot = (
     context: CanvasRenderingContext2D, 
@@ -55,7 +64,7 @@ export const drawPlot = (
     params : IPlotParams
 ) => {
     context.clearRect(0, 0, width, height)
-    context.font = "Inter 20px"
+    context.font = fontSize + "px Inter"
     const bounds = getBounds(params.graphs)
 
     const graphBox = {
@@ -64,7 +73,7 @@ export const drawPlot = (
         top: 0, 
         height: height - axisGutterWidth
     }
-    context.fillStyle = "#f4f4f4"
+    context.fillStyle = plotBgColor
     context.fillRect(graphBox.left, graphBox.top, graphBox.width, graphBox.height)
     
     const toScreen = (x: number, y: number) => {
@@ -74,21 +83,46 @@ export const drawPlot = (
         }
     }
 
-    const drawLegend = (left: number, top: number, text: string, color?: string) => {
+    const drawLegend = (left: number, top: number, text: string, color?: string, dashed?: boolean) => {
         const textMetrics = context.measureText(text)
-        context.fillStyle = "rgba(255, 255, 255, 0.7)"
         const xMargin = 5
-        context.fillRect(left, top, textMetrics.width + 2 * xMargin, legendHeight)
+        let xText = left + xMargin
+        let boxWidth = textMetrics.width + 2 * xMargin
+        if (color !== undefined) {
+            boxWidth += legendLineLength + 2 * xMargin
+            xText += legendLineLength + xMargin
+        }
+        context.fillStyle = "rgba(255, 255, 255, 0.9)"
+        context.fillRect(left, top, boxWidth, legendHeight)
         context.fillStyle = "black"
         context.textAlign = "left"
         context.textBaseline = "middle"
-        context.fillText(text, left + xMargin, top + 0.5 * legendHeight)
+        context.fillText(text, xText, top + 0.5 * legendHeight)
+
+        if (color !== undefined) {
+            context.lineWidth = graphLineWidth
+            context.strokeStyle = color
+            if (dashed) {
+                context.setLineDash(lineDashPattern)
+            } else {
+                context.setLineDash([])
+            }
+            context.beginPath()
+            context.moveTo(left + xMargin, top + 0.5 * legendHeight - 0.5 * graphLineWidth)
+            context.lineTo(left + xMargin + legendLineLength, top + 0.5 * legendHeight - 0.5 * graphLineWidth)
+            context.stroke()
+        }
     }
 
-    
+    // Graphs
     params.graphs.forEach((graph) => {
         context.strokeStyle = graph.color
         context.lineWidth = graphLineWidth
+        if (graph.dashed) {
+            context.setLineDash(lineDashPattern)
+        } else {
+            context.setLineDash([])
+        }
         context.beginPath()
         graph.points.forEach((point, pointIdx) => {
             const screenPos = toScreen(point.x, point.y)
@@ -99,14 +133,59 @@ export const drawPlot = (
             }
         })
         context.stroke()
+        context.beginPath()
+
+        context.setLineDash([])
+        context.lineWidth = axisLineWidth
+        context.strokeStyle = "rgba(0, 0, 0, 0.1)"
+        context.moveTo(graphBox.left, toScreen(0, 0).y)
+        context.lineTo(graphBox.left + graphBox.width, toScreen(0, 0).y)
+        context.stroke()
     })
 
+    // Graph outline and endpoint ticks
+    context.strokeStyle = axisColor
+    context.beginPath()
+    context.moveTo(0, axisLineWidth)
+    context.lineTo(width, axisLineWidth)
+    context.moveTo(graphBox.left, 0)
+    context.lineTo(graphBox.left, height)
+    context.moveTo(graphBox.left + graphBox.width, 0)
+    context.lineTo(graphBox.left + graphBox.width, height)
+    context.moveTo(0, graphBox.height)
+    context.lineTo(width, graphBox.height)
+    context.stroke()
+
+    // Axis labels
+    context.fillStyle = labelColor
+    context.textAlign = "center"
+    context.textBaseline = "middle"
+    const xLabelsY = graphBox.top + graphBox.height + 0.7 * axisGutterWidth
+    context.fillText("x", graphBox.left + 0.5 * graphBox.width, xLabelsY)
+    context.textAlign = "left"
+    context.fillText(params.graphs[0].points[0].x.toString(), graphBox.left + 3, xLabelsY)
+    context.textAlign = "right"
+    context.fillText(params.graphs[0].points[params.graphs[0].points.length - 1].x.toString(), graphBox.left + graphBox.width - 4, xLabelsY)
+
+    if (!params.hideYAxisLabels) {
+        context.save()
+        context.translate(graphBox.left, graphBox.top + graphBox.height)
+        context.rotate(-0.5 * Math.PI)
+        context.textAlign = "left"
+        context.fillText(bounds.yMin.toString(), 3, -0.5 * axisGutterWidth)
+        context.textAlign = "right"
+        context.fillText(bounds.yMax.toString(), graphBox.height - 3, -0.5 * axisGutterWidth)
+        context.restore()
+    }
+
+    // Legend boxes
     params.graphs.forEach((graph, graphIdx) => {
         drawLegend(
             graphBox.left + legendPadding, 
             graphBox.top + legendPadding + graphIdx * (legendHeight + legendPadding),
             graph.legend,
-            graph.color
+            graph.color,
+            graph.dashed
         )
     })
 

@@ -6,61 +6,72 @@ import { useCanvas } from "./use-canvas"
 import { IPlotParams, drawPlot } from "./plot"
 import { ChebyshevApproximation } from "./chebyshev-approx"
 import { TargetLanguage, generateCode, targetLanguages } from "./generate-code"
-import { Button, Checkbox, Input, Segmented, Select, Slider } from "antd"
+import { Button, Checkbox, ConfigProvider, Input, Segmented, Select, Slider } from "antd"
+
+const initialTargetFunction = "Math.exp(-0.4 * x) * Math.sin(x * x)"
+const initialXMin = 0
+const initialXMax = 3.6
+const maxOrder = 30
+const initialOrder = 11
+const initialNumTerms = 11
 
 const CoefficientList = (props: { coefficients: number[] }) => {
   const maxAbsCoeff = Math.max(...props.coefficients.map((c) => Math.abs(c)))
   const relativeBarLengths = props.coefficients.map((c) => Math.abs(c) / maxAbsCoeff)
-  return <div>
-    Coefficients
 
-    {props.coefficients.map((c, ci) => {
-      return <div style={{ width: "100%" }} key={ci}>
-        <div style={{ display: "flex" }}>
-          <div style={{ width: "30px" }} >c<sub>{ci}</sub></div>
-          <div style={{ width: Math.round(100 * relativeBarLengths[ci]) + "%", marginTop: "2px", marginBottom: "2px", backgroundColor: "rgba(0, 150, 0, 0.2)" }}>{c}</div>
+  return <ScrollableContent>
+    <div>
+      {(new Array<number>(maxOrder)).fill(0).map((_, ci) => {
+        const c = props.coefficients[ci]
+
+        return <div style={{ display: "flex", alignItems: "center", width: "100%" }} key={ci}>
+          <div style={{ padding: "4px", width: "30px", borderBottom: "1px solid #f0f0f0" }} >c{ci}</div>
+          <div style={{ position: "relative", width: "100%", borderLeft: "1px solid #f0f0f0", borderBottom: "1px solid #f0f0f0", padding: "4px" }}>
+            <div style={{ zIndex: -1, visibility: c === undefined ? "hidden" : "inherit", top: "50%", transform: "translate(0%, -50%)", height: "70%", backgroundColor: "#CCE3C7", position: "absolute", width: Math.round(100 * relativeBarLengths[ci]) + "%" }}></div>
+            {c}
+          </div>
         </div>
-      </div>
-    })}
+      })}
+    </div>
 
-  </div>
+  </ScrollableContent>
 }
 
-const CodeSnippets = (props: {
+const GeneratedCode = (props: {
   coefficients: number[],
   xMin: number,
-  xMax: number
+  xMax: number,
+  functionExpression: string
 }) => {
   const [targetLanguage, setTargetLanguage] = useState<TargetLanguage>(TargetLanguage.c)
-  const codeSnippet = generateCode(targetLanguage, props.coefficients, props.xMin, props.xMax)
-  return <div>
-    <Select
-      style={{ width: "100%" }}
-      value={targetLanguage}
-      onChange={lang => setTargetLanguage(lang)}
-      options={
-        //[{ value: 'sample', label: <span>sample</span> }]
-        targetLanguages.map((lang) => {
-          return {
-            value: lang, label: <span>{lang}</span>
-          }
-        })
-      } />
+  const codeSnippet = generateCode(targetLanguage, props.coefficients, props.xMin, props.xMax, props.functionExpression)
+  return <>
+    <div style={{display: "flex", width: "100%", alignItems: "center", marginBottom: "10px"}}>
+      <ControlLabel>Language</ControlLabel>
+      <Select
+        style={{marginLeft: "10px", flex: 1}}
+        value={targetLanguage}
+        onChange={lang => setTargetLanguage(lang)}
+        options={
+          //[{ value: 'sample', label: <span>sample</span> }]
+          targetLanguages.map((lang) => {
+            return {
+              value: lang, label: <span>{lang}</span>
+            }
+          })
+        } />
 
-    <Button onClick={() => {
-      ((window.navigator as any).clipboard as any).writeText(codeSnippet)
-    }}>Copy</Button>
-    <pre className="code">{codeSnippet}</pre>
-
-  </div>
+      <Button style={{ marginLeft: "10px" }} onClick={() => {
+        ((window.navigator as any).clipboard as any).writeText(codeSnippet)
+      }}>Copy code</Button>
+    </div>
+    <ScrollableContent>
+      <pre style={{ padding: "20px" }} className="code">{codeSnippet}</pre>
+    </ScrollableContent>
+  </>
 }
 
-const initialTargetFunction = "Math.exp(-2 * x) * Math.sin(x * x)"
-const initialXMin = 0
-const initialXMax = 3.1
-const maxOrder = 20
-const initialOrder = 8
-const initialNumTerms = 8
+
 
 const numberStringIsValid = (string: string): boolean => {
   const parseResult = parseFloat(string)
@@ -69,11 +80,21 @@ const numberStringIsValid = (string: string): boolean => {
 }
 
 const ScrollableContent = (props: { children: React.ReactNode }) => {
-  return <div style={{ backgroundColor: "orange", flex: 1, position: "relative", overflow: "auto" }}>
-    <div style={{ position: "absolute" }}>
-      { props.children }
+  return <div className="scrollable-container">
+    <div className="scrollable-content">
+      {props.children}
     </div>
   </div>
+}
+
+const ControlContainer = (props: { label: string, children: React.ReactNode, id?: string }) => {
+  return <div id={props.id} >
+    <span style={{ marginRight: "6px" }} >{props.label}</span>{props.children}
+  </div>
+}
+
+const ControlLabel = (props: { children: React.ReactNode }) => {
+  return <span style={{ minWidth: "50px" }} >{ props.children }</span>
 }
 
 const App = () => {
@@ -113,6 +134,22 @@ const App = () => {
   const [errorCanvasRef, redrawErrorCanvas] = useCanvas(drawErrorCanvas)
 
   useEffect(() => {
+    // Sometimes the canvases are drawn before the custom font has been loaded.
+    // This slight hack redraws the canvases a short time after DOMContentLoaded
+    // to make it less likely that the user sees the wrong font on first load
+    const refreshCanvases = () => {
+      setTimeout(() => {
+        redrawApproxCanvas()
+        redrawErrorCanvas()
+      }, 200)
+    }
+    document.addEventListener("DOMContentLoaded", refreshCanvases);
+    return () => {
+      document.removeEventListener("DOMContentLoaded", refreshCanvases)
+    }
+  }, [])
+
+  useEffect(() => {
     approxPlotParams.current = null
     setTargetFunctionStringIsValid(false)
     try {
@@ -149,31 +186,47 @@ const App = () => {
             x, y: approx.evaluate(x)
           }
         })
+        const approximationErrorPoints = functionPoints.map((fPoints, idx) => {
+          return {
+            x: fPoints.x,
+            y: fPoints.y - approximationPoints[idx].y
+          }
+        })
+        let maxError = 0
+        approximationErrorPoints.forEach((error, idx) => {
+          if (idx == 0 || Math.abs(error.y) > Math.abs(maxError)) {
+            maxError = error.y
+          }
+        })
         approxPlotParams.current = {
           graphs: [
             {
               color: "black",
-              legend: "f(x) = " + targetFunctionString,
+              legend: "f(x)",
               points: functionPoints
             },
             {
               color: "green",
-              legend: "Order " + order + " approximation",
+              legend: "Degree " + order + " approximation",
               points: approximationPoints
             }
           ]
         }
         errorPlotParams.current = {
+          hideYAxisLabels: true,
           graphs: [
             {
               color: "red",
               legend: "Approximation error",
-              points: functionPoints.map((fPoints, idx) => {
-                return {
-                  x: fPoints.x,
-                  y: fPoints.y - approximationPoints[idx].y
-                }
-              })
+              points: approximationErrorPoints
+            },
+            {
+              color: "red",
+              dashed: true,
+              legend: "Max error " + maxError,
+              points: [
+                { x: xMin, y: maxError }, { x: xMax, y: maxError }
+              ]
             }
           ]
         }
@@ -188,67 +241,82 @@ const App = () => {
   }, [targetFunctionString, xMin, xMax, order, numTerms, matchLeft, matchRight])
 
   return (
-    <>
+    <ConfigProvider
+      theme={{
+
+        components: {
+          Segmented: {
+            trackBg: "#e0e0e0"
+          },
+          Slider: {
+            trackBg: "#1677ff",
+            handleColor: "#1677ff",
+            trackHoverBg: "#1677ff"
+          }
+        },
+
+        token: {
+          // Seed Token
+
+          borderRadius: 2,
+          fontSize: 14,
+          fontFamily: "Inter"
+        },
+      }}
+    >
       <div id="top-bar-container">
         <div id="title-bar">
-          <div>
-            <strong>Chebyshev approximation calculator</strong> <a href="https://github.com/stuffmatic/chebyshev-calculator">GitHub</a>
-            <div style={{fontSize: "80%"}}>Generates code for efficiently approximating mathematical functions.</div>
-          </div>
-          <div>?</div>
+          <strong style={{ fontFamily: "InterBold", fontSize: "140%", marginBottom: "4px" }}>Chebyshev approximation calculator</strong>
+          <div style={{ fontSize: "90%" }}>Generates code for efficiently approximating mathematical functions. <a href="#">Huh?</a></div>
         </div>
         <div id="gui-controls-bar">
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            <div style={{ display: "flex", flexDirection: "row" }}>
-              <div style={{display: "flex", alignItems: "center" }}>
-                <span style={{marginRight: "10px"}} >f(x)</span>
-                <Input status={targetFunctionStringIsValid ? undefined : "error"} value={targetFunctionString} onChange={e => setTargetFunctionString(e.target.value)} placeholder="f(x) as a valid javascript expression" />
-              </div>            
-              <div style={{display: "flex", alignItems: "center" }}>
-              <span style={{marginRight: "10px"}}>Match</span><Checkbox checked={matchLeft} onChange={() => setMatchLeft((prev) => !prev)}>left</Checkbox>
-              <Checkbox checked={matchRight} onChange={() => setMatchRight((prev) => !prev)}>right</Checkbox>
-
-              </div>
-
-
+            <div id="function-string-input">
+              <ControlLabel>f(x)</ControlLabel>
+              <Input style={{ flex: 1 }} status={targetFunctionStringIsValid ? undefined : "error"} value={targetFunctionString} onChange={e => setTargetFunctionString(e.target.value)} placeholder="f(x) as a valid javascript expression" />
             </div>
-            <div style={{ display: "flex", flexDirection: "row" }}>
 
-
-              <span>x<sub>min</sub></span><Input
+            <div id="x-min-input">
+              <ControlLabel><span>x<sub>min</sub></span></ControlLabel>
+              <Input
                 value={xMinString}
                 status={numberStringIsValid(xMinString) ? undefined : "error"}
                 onChange={e => {
                   setXMinString(e.target.value)
                   const number = parseFloat(e.target.value)
-                  if (numberStringIsValid(e.target.value)) { 
-                    setXMin(number) 
+                  if (numberStringIsValid(e.target.value)) {
+                    setXMin(number)
                   }
                 }}
                 onBlur={() => {
-                  setXMinString(xMin.toString()) 
+                  setXMinString(xMin.toString())
                 }}
-                 />
-
-              <span>x<sub>max</sub></span><Input
+              />
+            </div>
+              
+            <div id="x-max-input">
+              <ControlLabel><span>x<sub>max</sub></span></ControlLabel>
+              <Input
                 value={xMaxString}
                 status={numberStringIsValid(xMaxString) ? undefined : "error"}
                 onChange={e => {
                   setXMaxString(e.target.value)
                   const number = parseFloat(e.target.value)
-                  if (numberStringIsValid(e.target.value)) { 
-                    setXMax(number) 
+                  if (numberStringIsValid(e.target.value)) {
+                    setXMax(number)
                   }
                 }}
                 onBlur={() => {
-                  setXMaxString(xMax.toString()) 
+                  setXMaxString(xMax.toString())
                 }} />
             </div>
-          </div>
-          <div style={{ display: "flex", flexDirection: "row" }}>
-            Order <Slider tooltip={{ placement: "bottom" }} style={{ width: "200px" }} min={1} max={maxOrder} value={order} onChange={e => setOrder(e)} />
-
-          </div>
+            <div id="order-slider">
+              <ControlLabel>Degree</ControlLabel><Slider tooltip={{ open: false }} style={{ width: "100%" }} min={1} max={maxOrder} value={order} onChange={e => setOrder(e)} />
+            </div>
+            <div id="endpoint-match-checkboxes">
+              <ControlLabel>Match</ControlLabel>
+              <Checkbox checked={matchLeft} onChange={() => setMatchLeft((prev) => !prev)}>left</Checkbox>
+              <Checkbox checked={matchRight} onChange={() => setMatchRight((prev) => !prev)}>right</Checkbox>
+            </div>
         </div>
       </div>
       <div id="main-gui-container">
@@ -261,21 +329,20 @@ const App = () => {
           </div>
         </div>
         <div id="result-container">
-          <div>
-            <Segmented
-              options={['Coefficients', 'Generate code']}
-              onChange={(value) => {
-                setShowCode(value == "Generate code")
-              }}
-            />
-          </div>
-          <ScrollableContent>
-            {showCode ? <CodeSnippets coefficients={coefficients} xMin={xMin} xMax={xMax} /> : <CoefficientList coefficients={coefficients} /> }
+          <Segmented
+            style={{marginBottom: "10px"}}
+            options={['Coefficients', 'Generated code']}
+            onChange={(value) => {
+              setShowCode(value == "Generated code")
+            }}
+          />
 
-          </ScrollableContent>
+          {showCode ?
+            <GeneratedCode coefficients={coefficients} xMin={xMin} xMax={xMax} functionExpression={targetFunctionString} /> :
+            <CoefficientList coefficients={coefficients} />}
         </div>
       </div>
-    </>
+    </ConfigProvider>
   )
 }
 

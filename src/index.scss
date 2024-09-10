@@ -1,12 +1,37 @@
-$breakpoint-sm: 576px;
-$result-panel-width: 300px;
-$padding: 10px;
+$breakpoint-sm: 660px;
+$result-panel-width: 360px;
+$padding: 12px;
+
+/* be-vietnam-pro-regular - latin-ext_latin */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local(''),
+      // Chrome 26+, Opera 23+, Firefox 39+
+      url('./assets/fonts/inter-v13-latin-regular.woff2') format('woff2'),
+      // Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+
+      url('./assets/fonts/inter-v13-latin-regular.woff2') format('woff');
+}
+
+@font-face {
+  font-family: 'InterBold';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local(''),
+      // Chrome 26+, Opera 23+, Firefox 39+
+      url('./assets/fonts/inter-v13-latin-700.woff2') format('woff2'),
+      // Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+
+      url('./assets/fonts/inter-v13-latin-700.woff2') format('woff');
+}
 
 :root {
   font-family: Inter;
   line-height: 1.5;
   // font-weight: 400;
-  font-size: 15px;
+  font-size: 13px;
 
   color-scheme: light dark;
   color: black;
@@ -36,7 +61,9 @@ body,
 
 #title-bar {
   display: flex;
+  flex-direction: column;
   justify-content: space-between;
+  margin-bottom: 20px;
 }
 
 #main-gui-container {
@@ -55,7 +82,10 @@ body,
   // background-color: orange;
   // height: 100%;
   
+  margin: 0px 10px 10px 10px;
+  
   @media only screen and (min-width: $breakpoint-sm) {
+    margin: 0px 0px 10px 10px;
     padding-bottom: 0;
     flex: 1;
   }
@@ -67,7 +97,7 @@ body,
   display: flex;
   align-items: stretch;
   
-  flex: 1;  
+  flex: 3;  
   padding-bottom: 70%;
   @media only screen and (min-width: $breakpoint-sm) {
     padding-bottom: 0;
@@ -75,6 +105,7 @@ body,
 }
 
 #error-graph {
+  margin-top: 16px;
   position: relative;
   width: 100%;
   display: flex;
@@ -82,8 +113,69 @@ body,
   padding-bottom: 30%;
   @media only screen and (min-width: $breakpoint-sm) {
     padding-bottom: 0;
-    height: 140px;
+    flex: 1;
   }
+}
+
+#gui-controls-bar {
+  max-width: $breakpoint-sm;
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: left;
+  
+}
+
+$controlSpacing: 6px;
+
+#function-string-input {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    margin-bottom: $controlSpacing;
+}
+
+
+#endpoint-match-checkboxes {
+  width: 100%;
+  @media only screen and (min-width: $breakpoint-sm) {
+    width: 30%;
+  }
+  display: flex;
+  align-items: center;
+  margin-bottom: $controlSpacing;
+}
+
+#x-min-input {
+  width: 100%;
+  @media only screen and (min-width: $breakpoint-sm) {
+    width: 50%;
+  }
+  display: flex;
+  align-items: center;
+  margin-bottom: $controlSpacing;
+}
+
+#x-max-input {
+  width: 100%;
+  @media only screen and (min-width: $breakpoint-sm) {
+    
+    width: 50%;
+  }
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  margin-bottom: $controlSpacing;
+}
+
+#order-slider {
+  width: 100%;
+  @media only screen and (min-width: $breakpoint-sm) {
+    width: 70%;
+  }
+  
+  display: flex;
+  align-items: center;
+  margin-bottom: $controlSpacing;
 }
 
 canvas {
@@ -94,17 +186,23 @@ canvas {
 #result-container {
   width: 100%;
   display: flex;
+  padding: 0px 10px 0px 10px;
+  box-sizing: border-box;
+  align-items: flex-start;
   flex-direction: column;
   @media only screen and (min-width: $breakpoint-sm) {
     width: $result-panel-width;
   }
-  background-color: blue;
+  // background-color: blue;
 }
 
 .code {
   white-space: pre-wrap;
   overflow: auto;
-  background-color: cyan;
+  font-size: 10px;
+  background-color: #323227;
+  color: #EFECD2;
+  margin: 0;
 }
 
 body {
@@ -112,22 +210,18 @@ body {
   margin: 0;
 }
 
-/*button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
+.scrollable-container {
+  width: 100%;
+  @media only screen and (min-width: $breakpoint-sm) {
+    flex: 1; 
+    position: relative;
+    overflow-y: auto;
+  }
 }
-button:hover {
-  border-color: #646cff;
+
+.scrollable-content {
+  width: 100%;
+  @media only screen and (min-width: $breakpoint-sm) {
+    position: absolute
+  }
 }
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-*/
