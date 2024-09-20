@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react"
 import { useCanvas } from "./hooks/use-canvas"
 import { IPlotParams, drawPlot, numberString } from "./util/plot"
 import { ChebyshevExpansion } from "./util/chebyshev-expansion"
-import { Button, Checkbox, ConfigProvider, Input, Segmented, Select, Slider } from "antd"
+import { Checkbox, ConfigProvider, Input, Segmented, Slider } from "antd"
 import { HelpModal } from "./components/HelpModal"
 import { ControlLabel } from "./components/ControlLabel"
 import { GeneratedCode } from "./components/GeneratedCode"
@@ -15,7 +15,6 @@ const initialTargetFunction = "Math.exp(-0.4 * x) * Math.sin(x * x)"
 const initialXMin = 0
 const initialXMax = 3.6
 const maxOrder = 30
-const initialOrder = 11
 const initialNumTerms = 11
 
 const numberStringIsValid = (string: string): boolean => {
@@ -32,7 +31,6 @@ const App = () => {
   const [xMinString, setXMinString] = useState(initialXMin.toString())
   const [xMax, setXMax] = useState(initialXMax)
   const [xMaxString, setXMaxString] = useState(initialXMax.toString())
-  const [order, setOrder] = useState(initialOrder)
   const [numTerms, setNumTerms] = useState(initialNumTerms)
   const [matchLeft, setMatchLeft] = useState(false)
   const [matchRight, setMatchRight] = useState(false)
@@ -77,6 +75,18 @@ const App = () => {
     }
   }, [])
 
+  const expansion = new ChebyshevExpansion({ 
+    xMin, 
+    xMax, 
+    numberOfTerms: numTerms, 
+    matchLeft, 
+    matchRight,
+    description: targetFunctionString,
+    f: (x: number) => { // x needs to be in scope for eval, don't comment out
+      return eval(targetFunctionString) as number
+    }
+  })
+
   useEffect(() => {
     approxPlotParams.current = null
     setTargetFunctionStringIsValid(false)
@@ -99,19 +109,15 @@ const App = () => {
 
       if (xValues.length == fValues.length) {
         setTargetFunctionStringIsValid(true)
-        const approx = new ChebyshevExpansion(
-          (x: number) => { // x needs to be in scope for eval
-            return eval(targetFunctionString) as number
-          },
-          xMin, xMax, order, order, matchLeft, matchRight)
-        console.log(matchLeft, matchRight)
-        setCoefficients(approx.coeffs)
+        
+
+        setCoefficients(expansion.coeffs)
         const functionPoints = xValues.map((x, xi) => {
           return { x, y: fValues[xi] }
         })
         const approximationPoints = xValues.map((x) => {
           return {
-            x, y: approx.evaluate(x)
+            x, y: expansion.evaluate(x)
           }
         })
         const approximationErrorPoints = functionPoints.map((fPoints, idx) => {
@@ -135,7 +141,7 @@ const App = () => {
             },
             {
               color: "#52AE1F",
-              legend: "Degree " + (order - 1) + " approximation",
+              legend: (numTerms) + " term approximation",
               points: approximationPoints
             }
           ]
@@ -166,7 +172,7 @@ const App = () => {
     }
     redrawApproxCanvas()
     redrawErrorCanvas()
-  }, [targetFunctionString, xMin, xMax, order, numTerms, matchLeft, matchRight])
+  }, [targetFunctionString, xMin, xMax, numTerms, matchLeft, matchRight])
 
   return (
     <ConfigProvider
@@ -240,7 +246,7 @@ const App = () => {
               }} />
           </div>
           <div id="order-slider">
-            <ControlLabel>Degree</ControlLabel><Slider tooltip={{ open: false }} style={{ width: "100%" }} min={1} max={maxOrder} value={order} onChange={e => setOrder(e)} />
+            <ControlLabel># terms</ControlLabel><Slider tooltip={{ open: false }} style={{ width: "100%" }} min={1} max={maxOrder} value={numTerms} onChange={e => setNumTerms(e)} />
           </div>
           <div id="endpoint-match-checkboxes">
             <ControlLabel>Match</ControlLabel>
@@ -270,7 +276,7 @@ const App = () => {
           </div>
 
           {showCode ?
-            <GeneratedCode coefficients={coefficients} xMin={xMin} xMax={xMax} functionExpression={targetFunctionString} /> :
+            <GeneratedCode expansion={expansion} /> :
             <CoefficientList coefficients={coefficients} maxOrder={maxOrder} />}
         </div>
       </div>

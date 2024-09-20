@@ -2,30 +2,36 @@ export class ChebyshevExpansion {
     readonly coeffs: number[] = []
     readonly xMin: number
     readonly xMax: number
+    readonly matchLeft: boolean
+    readonly matchRight: boolean
+    readonly description?: string
 
-    constructor(
-        f: (x: number) => number, 
+    constructor(args: {
+        f: (x: number) => number,
         xMin: number, 
         xMax: number, 
-        order: number, 
-        coeffCount: number,
+        numberOfTerms: number, 
         matchLeft: boolean,
-        matchRight: boolean
-    ) {
-        this.xMin = xMin
-        this.xMax = xMax
+        matchRight: boolean,
+        description?: string
+    }) {
+        this.xMin = args.xMin
+        this.xMax = args.xMax
+        this.matchLeft = args.matchLeft
+        this.matchRight = args.matchRight
+        this.description = args.description
 
-        for (let i = 0; i < order; i++) {
+        for (let i = 0; i < args.numberOfTerms; i++) {
             this.coeffs.push(0)
         }
 
-        for (let j = 0; j < order; j++) {
-            for (let k = 0; k < order; k++) {
-                const xRel = 0.5 * (1.0 + Math.cos(Math.PI * (k + 0.5) / order))
-                const x = xMin + (xMax - xMin) * xRel
-                const fVal = f(x)
-                const weight = Math.cos(Math.PI * j * (k + 0.5) / order)
-                this.coeffs[j] += 2.0 * fVal * weight / order
+        for (let j = 0; j < args.numberOfTerms; j++) {
+            for (let k = 0; k < args.numberOfTerms; k++) {
+                const xRel = 0.5 * (1.0 + Math.cos(Math.PI * (k + 0.5) / args.numberOfTerms))
+                const x = args.xMin + (args.xMax - args.xMin) * xRel
+                const fVal = args.f(x)
+                const weight = Math.cos(Math.PI * j * (k + 0.5) / args.numberOfTerms)
+                this.coeffs[j] += 2.0 * fVal * weight / args.numberOfTerms
             }
         }
 
@@ -33,20 +39,17 @@ export class ChebyshevExpansion {
         // ends to the desired values
         let xMinOffs = 0
         let xMaxOffs = 0
-        if (matchLeft) {
-            xMinOffs = f(xMin) - this.evaluate(xMin)
+        if (args.matchLeft) {
+            xMinOffs = args.f(args.xMin) - this.evaluate(args.xMin)
         } 
-        if (matchRight) {
-            xMaxOffs = f(xMax) - this.evaluate(xMax)
+        if (args.matchRight) {
+            xMaxOffs = args.f(args.xMax) - this.evaluate(args.xMax)
         }
             
         let a = 0.5 * (xMaxOffs + xMinOffs);
         let b = 0.5 * (xMaxOffs - xMinOffs);
         this.coeffs[0] += 2 * a;
         this.coeffs[1] += b;
-
-
-        this.coeffs = this.coeffs.filter((_, i) => i < coeffCount)
     }
 
     evaluate(x: number): number {

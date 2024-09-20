@@ -1,3 +1,5 @@
+import { ChebyshevExpansion } from "./chebyshev-expansion"
+
 export enum TargetLanguage {
     python = "Python",
     c = "C",
@@ -10,15 +12,11 @@ export const targetLanguages: TargetLanguage[] = [
     TargetLanguage.python
 ]
 
-const coefficientsCommentLines = (coefficients: number[], 
-    xMin: number, 
-    xMax: number,
-    functionExpression: string
-): string[] => {
+const coefficientsCommentLines = (expansion: ChebyshevExpansion): string[] => {
     return [
-        coefficients.length + " term expansion coefficients for",
-        "f(x)=" + functionExpression,
-        "x_min=" + xMin + ", x_max=" + xMax
+        expansion.coeffs.length + " term expansion coefficients for",
+        "f(x)=" + expansion.description,
+        "x_min=" + expansion.xMin + ", x_max=" + expansion.xMax
     ]
 }
 
@@ -31,35 +29,35 @@ const evalFunctionCommentLines = (): string[] => {
 
 const exampleEvalCommentLines = (): string[] => {
     return [
-        "Evaluate the approximation at the interval midpoint",
-        "(should equal XXXXX)."
+        "Evaluate the approximation at the interval midpoint"
     ]
 }
 
-const generateCCode = (
-    coefficients: number[], 
-    xMin: number, 
-    xMax: number,
-    functionExpression: string
-): string => {
+const generateCCode = (expansion: ChebyshevExpansion): string => {
     const lines: string[] = [
         "#include <stdio.h>",
         "",
         ...evalFunctionCommentLines().map((l) => "// " + l),
         "float evaluate(const float* coeffs, int num_coeffs, float x, float x_min, float x_max) {",
-        "    float xRel2 = -2.0 + 4.0 * (x - x_min) / (x_max - x_min);",
+        "    float x_rel_2 = -2.0 + 4.0 * (x - x_min) / (x_max - x_min);",
         "    float d = 0.0;",
         "    float dd = 0.0;",
         "    float temp = 0.0;",
+        "    for (int i = num_coeffs - 1; i > 0; i--) {",
+        "        temp = d;",
+        "        d = x_rel_2 * d - dd + coeffs[i];",
+        "        dd = temp;",
+        "    }",
+        "    return 0.5 * x_rel_2 * d - dd + 0.5 * coeffs[0];",
         "}",
         "",
-        ...coefficientsCommentLines(coefficients, xMin, xMax, functionExpression).map((l) => "// " + l),
-        "#define NUM_COEFFS " + coefficients.length,
+        ...coefficientsCommentLines(expansion).map((l) => "// " + l),
+        "#define NUM_COEFFS " + expansion.coeffs.length,
         "float coeffs[NUM_COEFFS] = {",
-        coefficients.map((c) => "    " + c).join(",\n"),
+            expansion.coeffs.map((c) => "    " + c).join(",\n"),
         "};",
-        "float x_min = " + xMin + ";",
-        "float x_max = " + xMax + ";",
+        "float x_min = " + expansion.xMin + ";",
+        "float x_max = " + expansion.xMax + ";",
         "",
         "int main() {",
         
@@ -67,7 +65,8 @@ const generateCCode = (
         
         "    float x_mid = 0.5 * (x_min + x_max);",
         "    float value_at_x_mid = evaluate(coeffs, NUM_COEFFS, x_mid, x_min, x_max);",
-        '    printf("value_at_x_mid %f", value_at_x_mid);',
+        '    printf("Approximated value at x=%f is %f (single precision)\\n", x_mid, value_at_x_mid);',
+        '    printf("Should be ' + expansion.evaluate(0.5 * (expansion.xMin + expansion.xMax)) + ' (double precision)");',
         "    return 0;",
         "}"
     ]
@@ -76,28 +75,38 @@ const generateCCode = (
 
 }
 
-const generatePythonCode = (coefficients: number[], xMin: number, xMax: number, functionExpression: string): string => {
+const generatePythonCode = (expansion: ChebyshevExpansion): string => {
     const lines: string[] = [
         ...evalFunctionCommentLines().map((line) => "# " + line),
         "def evaluate(coeffs, x, x_min, x_max):",
-        "    pass",
+        "    x_rel_2 = -2 + 4 * (x - x_min) / float(x_max - x_min)",
+        "    d = 0",
+        "    dd = 0",
+        "    temp = 0",
+        "    for ci in coeffs[-1:0:1]:",
+        "        temp = d",
+        "        d = x_rel_2 * d - dd + ci",
+        "        dd = temp",
+        "    return 0.5 * x_rel_2 * d - dd + 0.5 * coeffs[0]",
         "",
-        ...coefficientsCommentLines(coefficients, xMin, xMax, functionExpression).map((line) => "# " + line),
+        ...coefficientsCommentLines(expansion).map((line) => "# " + line),
         "coeffs = [",
-        coefficients.map((c) => "    " + c).join(",\n"),
+        expansion.coeffs.map((c) => "    " + c).join(",\n"),
         "]",
-        "x_min = " + xMin,
-        "x_max = " + xMax,
+        "x_min = " + expansion.xMin,
+        "x_max = " + expansion.xMax,
         "",
         ...exampleEvalCommentLines().map((line) => "# " + line),
         "x_mid = 0.5 * (x_min + x_max)",
-        "value_at_x_mid = evaluate(coeffs, x_mid, x_min, x_max)"
+        "value_at_x_mid = evaluate(coeffs, x_mid, x_min, x_max)",
+        'print("Value at", x_mid , "is", str(value_at_x_mid))',
+        'print("Should be", ' + expansion.evaluate(0.5 * (expansion.xMin + expansion.xMax)) + ',"(double precision)");',
     ]
 
     return lines.join("\n")
 }
 
-const generateRustCode = (coefficients: number[], xMin: number, xMax: number, functionExpression: string): string => {
+const generateRustCode = (expansion: ChebyshevExpansion): string => {
     return [
         ...evalFunctionCommentLines().map((line) => "// " + line),
         "fn evaluate(coeffs: &[f32], x: f32, x_min: f32, x_max: f32) -> f32 {",
@@ -107,38 +116,39 @@ const generateRustCode = (coefficients: number[], xMin: number, xMax: number, fu
         "    let mut temp;",
         "    for cj in coeffs.iter().skip(1).rev() {",
         "        temp = d;",
-        "        d = x_rel_2 * d - dd * cj;",
+        "        d = x_rel_2 * d - dd + cj;",
         "        dd = temp",
         "    }",
         "    0.5 * x_rel_2 * d - dd + 0.5 * coeffs[0]",
         "}",
         "",
-        ...coefficientsCommentLines(coefficients, xMin, xMax, functionExpression).map((line) => "// " + line),
-        "const COEFFS: [f32; " + coefficients.length + "] = [",
-        coefficients.map((c) => "    " + c).join(",\n"),
+        ...coefficientsCommentLines(expansion).map((line) => "// " + line),
+        "const COEFFS: [f32; " + expansion.coeffs.length + "] = [",
+        expansion.coeffs.map((c) => "    " + c).join(",\n"),
         "];",
-        "const X_MIN: f32 = " + xMin + "_f32;",
-        "const X_MAX: f32 = " + xMax + "_f32;",
+        "const X_MIN: f32 = " + expansion.xMin + "_f32;",
+        "const X_MAX: f32 = " + expansion.xMax + "_f32;",
         "",
         "fn main() {",
         ...exampleEvalCommentLines().map((line) => "    // " + line),
         "    let x_mid = 0.5 * (X_MIN + X_MAX);",
         "    let value_at_x_mid = evaluate(&COEFFS, x_mid, X_MIN, X_MAX);",
-        '    println!("Value at x={} is {}", x_mid, value_at_x_mid);',
+        '    println!("Approximated value at x={} is {} (single precision)", x_mid, value_at_x_mid);',
+        '    println!("Should be ' + expansion.evaluate(0.5 * (expansion.xMin + expansion.xMax)) + ' (double precision)");',
         "}"
     ].join("\n")
 }
 
-export const generateCode = (language: TargetLanguage, coefficients: number[], xMin: number, xMax: number, functionExpression: string): string =>  {
+export const generateCode = (language: TargetLanguage, expansion: ChebyshevExpansion): string =>  {
     switch (language) {
         case TargetLanguage.c: {
-            return generateCCode(coefficients, xMin, xMax, functionExpression)
+            return generateCCode(expansion)
         }
         case TargetLanguage.python: {
-            return generatePythonCode(coefficients, xMin, xMax, functionExpression)
+            return generatePythonCode(expansion)
         }
         case TargetLanguage.rust: {
-            return generateRustCode(coefficients, xMin, xMax, functionExpression)
+            return generateRustCode(expansion)
         }
     }
 }

@@ -3,6 +3,7 @@ import { TargetLanguage, generateCode, targetLanguages } from "../util/generate-
 import { ControlLabel } from "./ControlLabel"
 import { Button, Select } from "antd"
 import { ScrollableContent } from "./ScrollableContent"
+import { ChebyshevExpansion } from "../util/chebyshev-expansion"
 
 const playgroundUrl = (language: TargetLanguage): string | undefined => {
     switch (language) {
@@ -15,14 +16,9 @@ const playgroundUrl = (language: TargetLanguage): string | undefined => {
     }
 }
 
-export const GeneratedCode = (props: {
-    coefficients: number[],
-    xMin: number,
-    xMax: number,
-    functionExpression: string
-}) => {
+export const GeneratedCode = (props: { expansion: ChebyshevExpansion }) => {
     const [targetLanguage, setTargetLanguage] = useState<TargetLanguage>(TargetLanguage.c)
-    const codeSnippet = generateCode(targetLanguage, props.coefficients, props.xMin, props.xMax, props.functionExpression)
+    const codeSnippet = generateCode(targetLanguage, props.expansion)
     const liveUrl = playgroundUrl(targetLanguage)
     
     return <>
