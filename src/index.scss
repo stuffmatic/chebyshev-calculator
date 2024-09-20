@@ -43,6 +43,10 @@ $padding: 12px;
   -moz-osx-font-smoothing: grayscale; */
 }
 
+a, a:active, a:visited, a:hover {
+  color: #135af2;
+}
+
 html,
 body,
 #root {
@@ -134,6 +138,9 @@ $controlSpacing: 6px;
     margin-bottom: $controlSpacing;
 }
 
+.modal-open {
+  overflow: hidden;
+}
 
 #endpoint-match-checkboxes {
   width: 100%;

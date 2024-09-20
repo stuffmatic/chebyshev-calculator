@@ -3,7 +3,12 @@ import { useEffect, useRef } from "react";
 export const useCanvas = (
     drawFunction: (context: CanvasRenderingContext2D, width: number, height: number) => void,
     fixedSize?: boolean
-): [React.RefObject<HTMLCanvasElement>, () => void] => {
+): [
+    // A reference to the canvas element
+    React.RefObject<HTMLCanvasElement>, 
+    // A function for redrawing the canvas on window resize
+    () => void
+] => {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 
     const redrawCanvas = () => {
