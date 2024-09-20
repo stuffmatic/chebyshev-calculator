@@ -1,50 +1,18 @@
-# React + TypeScript + Vite
+# Chebyshev approximation calculator
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is a web app with an intuitive visual interface that lets you generate code for efficiently approximating mathematical functions of one variable. This can for example be useful in resource constrained environments, like embedded systems, where standard math functions are either not available or prohibitively expensive to evaluate.
 
-Currently, two official plugins are available:
+Functions are approximated using so called Chebyshev expansions, which are numerically well behaved and can be evaluated very efficiently. Chebyshev approximation theory is a deep mathematical topic, but evaluating a Chebyshev expansion in practice boils down to a simple code snippet. This goal of this project is to bridge the gap between theory and practice and bring Chebyshev approximation to a wider audience.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+![](screenshot.png)
 
-## Expanding the ESLint configuration
+Any javascript expression Stand-alone typescript code for compting and evaluating chebyshev approximations of you need more.
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+## Usage
 
-- Configure the top-level `parserOptions` property like this:
+1. Enter the function you want to approximate as a valid Javascript expression of the variable `x`, for example `Math.cos(x)`.
+2. Specify x min and x max
+3. Change n terms until error is good
+4. Export code
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
-
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
-
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+## Building and running
