@@ -216,8 +216,9 @@ canvas {
 }
 
 .code {
-  white-space: pre-wrap;
-  overflow: auto;
+  // white-space: pre-wrap;
+  // overflow: auto;
+  overflow-x: scroll;
   font-size: 10px;
   background-color: #323227;
   color: #EFECD2;

@@ -1,4 +1,4 @@
-export class ChebyshevApproximation {
+export class ChebyshevExpansion {
     readonly coeffs: number[] = []
     readonly xMin: number
     readonly xMax: number
@@ -29,7 +29,7 @@ export class ChebyshevApproximation {
             }
         }
 
-         // Add a linear term a + bx that offsets the left and right
+        // Add a linear term a + bx that offsets the left and right
         // ends to the desired values
         let xMinOffs = 0
         let xMaxOffs = 0
@@ -42,7 +42,7 @@ export class ChebyshevApproximation {
             
         let a = 0.5 * (xMaxOffs + xMinOffs);
         let b = 0.5 * (xMaxOffs - xMinOffs);
-        this.coeffs[0] += 2 * a; // multiplied by 2.0 * 0.5 = 1 due to c0 pre-bake multiply above
+        this.coeffs[0] += 2 * a;
         this.coeffs[1] += b;
 
 

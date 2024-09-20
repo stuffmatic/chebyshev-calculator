@@ -4,7 +4,7 @@
 import { useEffect, useRef, useState } from "react"
 import { useCanvas } from "./hooks/use-canvas"
 import { IPlotParams, drawPlot, numberString } from "./util/plot"
-import { ChebyshevApproximation } from "./util/chebyshev-approx"
+import { ChebyshevExpansion } from "./util/chebyshev-expansion"
 import { Button, Checkbox, ConfigProvider, Input, Segmented, Select, Slider } from "antd"
 import { HelpModal } from "./components/HelpModal"
 import { ControlLabel } from "./components/ControlLabel"
@@ -99,7 +99,7 @@ const App = () => {
 
       if (xValues.length == fValues.length) {
         setTargetFunctionStringIsValid(true)
-        const approx = new ChebyshevApproximation(
+        const approx = new ChebyshevExpansion(
           (x: number) => { // x needs to be in scope for eval
             return eval(targetFunctionString) as number
           },

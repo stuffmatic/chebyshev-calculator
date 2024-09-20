@@ -31,7 +31,7 @@ const evalFunctionCommentLines = (): string[] => {
 
 const exampleEvalCommentLines = (): string[] => {
     return [
-        "Compute the value at the interval midpoint",
+        "Evaluate the approximation at the interval midpoint",
         "(should equal XXXXX)."
     ]
 }
@@ -96,7 +96,35 @@ const generatePythonCode = (coefficients: number[], xMin: number, xMax: number, 
 }
 
 const generateRustCode = (coefficients: number[], xMin: number, xMax: number, functionExpression: string): string => {
-    return "TODO"
+    return [
+        ...evalFunctionCommentLines().map((line) => "// " + line),
+        "fn evaluate(coeffs: &[f32], x: f32, x_min: f32, x_max: f32) -> f32 {",
+        "    let x_rel_2 = -2.0 + 4.0 * (x - x_min) / (x_max - x_min);",
+        "    let mut d = 0.0;",
+        "    let mut dd = 0.0;",
+        "    let mut temp;",
+        "    for cj in coeffs.iter().skip(1).rev() {",
+        "        temp = d;",
+        "        d = x_rel_2 * d - dd * cj;",
+        "        dd = temp",
+        "    }",
+        "    0.5 * x_rel_2 * d - dd + 0.5 * coeffs[0]",
+        "}",
+        "",
+        ...coefficientsCommentLines(coefficients, xMin, xMax, functionExpression).map((line) => "// " + line),
+        "const COEFFS: [f32; " + coefficients.length + "] = [",
+        coefficients.map((c) => "    " + c).join(",\n"),
+        "];",
+        "const X_MIN: f32 = " + xMin + "_f32;",
+        "const X_MAX: f32 = " + xMax + "_f32;",
+        "",
+        "fn main() {",
+        ...exampleEvalCommentLines().map((line) => "    // " + line),
+        "    let x_mid = 0.5 * (X_MIN + X_MAX);",
+        "    let value_at_x_mid = evaluate(&COEFFS, x_mid, X_MIN, X_MAX);",
+        '    println!("Value at x={} is {}", x_mid, value_at_x_mid);',
+        "}"
+    ].join("\n")
 }
 
 export const generateCode = (language: TargetLanguage, coefficients: number[], xMin: number, xMax: number, functionExpression: string): string =>  {
