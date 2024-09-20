@@ -43,19 +43,17 @@ const generateCCode = (
     functionExpression: string
 ): string => {
     const lines: string[] = [
-        "/*",
-        ...evalFunctionCommentLines(),
-        "*/",
+        "#include <stdio.h>",
+        "",
+        ...evalFunctionCommentLines().map((l) => "// " + l),
         "float evaluate(const float* coeffs, int num_coeffs, float x, float x_min, float x_max) {",
-        "    float xRel2 = -2.0 + 4.0 * (x - xMin) / (xMax - xMin);",
+        "    float xRel2 = -2.0 + 4.0 * (x - x_min) / (x_max - x_min);",
         "    float d = 0.0;",
         "    float dd = 0.0;",
         "    float temp = 0.0;",
         "}",
         "",
-        "/*",
-        ...coefficientsCommentLines(coefficients, xMin, xMax, functionExpression),
-        "*/",
+        ...coefficientsCommentLines(coefficients, xMin, xMax, functionExpression).map((l) => "// " + l),
         "#define NUM_COEFFS " + coefficients.length,
         "float coeffs[NUM_COEFFS] = {",
         coefficients.map((c) => "    " + c).join(",\n"),
@@ -63,11 +61,15 @@ const generateCCode = (
         "float x_min = " + xMin + ";",
         "float x_max = " + xMax + ";",
         "",
-        "/*",
-        ...exampleEvalCommentLines(),
-        "*/",
-        "float x_mid = 0.5 * (x_min + x_max);",
-        "float value_at_x_mid = evaluate(coeffs, NUM_COEFFS, x_mid, x_min, x_max);"
+        "int main() {",
+        
+        ...exampleEvalCommentLines().map((l) => "    // " + l),
+        
+        "    float x_mid = 0.5 * (x_min + x_max);",
+        "    float value_at_x_mid = evaluate(coeffs, NUM_COEFFS, x_mid, x_min, x_max);",
+        '    printf("value_at_x_mid %f", value_at_x_mid);',
+        "    return 0;",
+        "}"
     ]
 
     return lines.join("\n")
