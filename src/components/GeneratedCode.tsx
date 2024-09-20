@@ -4,6 +4,17 @@ import { ControlLabel } from "./ControlLabel"
 import { Button, Select } from "antd"
 import { ScrollableContent } from "./ScrollableContent"
 
+const playgroundUrl = (language: TargetLanguage): string | undefined => {
+    switch (language) {
+        case TargetLanguage.c: 
+            return "https://programiz.pro/ide/c"
+        case TargetLanguage.python:
+            return "https://playground.programiz.com/"
+        case TargetLanguage.rust:
+            return "https://play.rust-lang.org/?version=stable&mode=debug&edition=2021"
+    }
+}
+
 export const GeneratedCode = (props: {
     coefficients: number[],
     xMin: number,
@@ -12,6 +23,8 @@ export const GeneratedCode = (props: {
 }) => {
     const [targetLanguage, setTargetLanguage] = useState<TargetLanguage>(TargetLanguage.c)
     const codeSnippet = generateCode(targetLanguage, props.coefficients, props.xMin, props.xMax, props.functionExpression)
+    const liveUrl = playgroundUrl(targetLanguage)
+    
     return <>
         <div style={{ display: "flex", width: "100%", alignItems: "center", marginBottom: "10px" }}>
             <ControlLabel>Language</ControlLabel>
@@ -32,6 +45,13 @@ export const GeneratedCode = (props: {
                 ((window.navigator as any).clipboard as any).writeText(codeSnippet)
             }}>Copy code</Button>
         </div>
+        {
+            liveUrl !== undefined ? 
+            <div style={{ opacity: 0.6, marginBottom: "10px"}}>
+                Run this code in your browser by pasting it <a href={ liveUrl } target="_blank">here</a>.
+            </div> : null
+        }
+        
         <ScrollableContent>
             <pre style={{ padding: "20px" }} className="code">{codeSnippet}</pre>
         </ScrollableContent>
