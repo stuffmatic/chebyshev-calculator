@@ -8,8 +8,8 @@ export enum TargetLanguage {
 
 export const targetLanguages: TargetLanguage[] = [
     TargetLanguage.c,
-    TargetLanguage.rust,
-    TargetLanguage.python
+    TargetLanguage.python,
+    TargetLanguage.rust
 ]
 
 const coefficientsCommentLines = (expansion: ChebyshevExpansion): string[] => {
@@ -100,7 +100,7 @@ const generatePythonCode = (expansion: ChebyshevExpansion): string => {
         "x_mid = 0.5 * (x_min + x_max)",
         "value_at_x_mid = evaluate(coeffs, x_mid, x_min, x_max)",
         'print("Value at", x_mid , "is", str(value_at_x_mid))',
-        'print("Should be", ' + expansion.evaluate(0.5 * (expansion.xMin + expansion.xMax)) + ',"(double precision)");',
+        'print("Should be", ' + expansion.evaluate(0.5 * (expansion.xMin + expansion.xMax)) + ', "(double precision)");',
     ]
 
     return lines.join("\n")

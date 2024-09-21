@@ -1,6 +1,6 @@
 $breakpoint-sm: 660px;
 $result-panel-width: 360px;
-$padding: 12px;
+$padding: 14px;
 
 /* be-vietnam-pro-regular - latin-ext_latin */
 @font-face {
@@ -25,6 +25,18 @@ $padding: 12px;
       url('./assets/fonts/inter-v13-latin-700.woff2') format('woff2'),
       // Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+
       url('./assets/fonts/inter-v13-latin-700.woff2') format('woff');
+}
+
+@font-face {
+  font-family: 'InterSemibold';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: local(''),
+      // Chrome 26+, Opera 23+, Firefox 39+
+      url('./assets/fonts/inter-v18-latin-600.woff2') format('woff2'),
+      // Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+
+      url('./assets/fonts/inter-v18-latin-600.woff2') format('woff');
 }
 
 :root {
@@ -67,7 +79,7 @@ body,
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  margin-bottom: 20px;
+  margin-bottom: 13px;
 }
 
 #main-gui-container {
@@ -223,6 +235,10 @@ canvas {
   background-color: #323227;
   color: #EFECD2;
   margin: 0;
+}
+
+.dimmed {
+  color: #808080;
 }
 
 body {

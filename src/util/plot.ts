@@ -55,7 +55,7 @@ const axisLineWidth = 1
 const axisColor = "#c0c0c0"
 const labelColor = "#000000"
 const plotBgColor = "#fafafa"
-const lineDashPattern = [graphLineWidth, 8]
+const lineDashPattern = [graphLineWidth, 5]
 
 export const numberString = (number: number): string => {
     const exponential = Math.abs(number) < 0.0001 && number != 0

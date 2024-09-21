@@ -14,7 +14,7 @@ import { CoefficientList } from "./components/CoefficientList"
 const initialTargetFunction = "Math.exp(-0.4 * x) * Math.sin(x * x)"
 const initialXMin = 0
 const initialXMax = 3.6
-const maxOrder = 30
+const maxNumTerms = 30
 const initialNumTerms = 11
 
 const numberStringIsValid = (string: string): boolean => {
@@ -199,11 +199,8 @@ const App = () => {
 
       <div id="top-bar-container">
         <div id="title-bar">
-          <strong style={{ fontFamily: "InterBold", fontSize: "140%", marginBottom: "4px" }}>Chebyshev approximation calculator</strong>
-          <div style={{ fontSize: "95%" }}>Generates code for efficiently approximating mathematical functions.  <a href="#" onClick={(e) => {
-            e.preventDefault()
-            setIsShowingHelpModal(true)
-          }}>Huh?</a></div>
+          <strong style={{ fontFamily: "InterSemibold", fontSize: "140%", marginTop: "-3px", marginBottom: "1px" }}>Chebyshev approximation calculator</strong>
+          <div className="dimmed">Generates code for efficiently approximating mathematical functions.</div>
         </div>
         <div id="gui-controls-bar">
           <div id="function-string-input">
@@ -246,7 +243,7 @@ const App = () => {
               }} />
           </div>
           <div id="order-slider">
-            <ControlLabel># terms</ControlLabel><Slider tooltip={{ open: false }} style={{ width: "100%" }} min={1} max={maxOrder} value={numTerms} onChange={e => setNumTerms(e)} />
+            <ControlLabel># terms</ControlLabel><Slider tooltip={{ open: false }} style={{ width: "100%" }} min={1} max={maxNumTerms} value={numTerms} onChange={e => setNumTerms(e)} />
           </div>
           <div id="endpoint-match-checkboxes">
             <ControlLabel>Match</ControlLabel>
@@ -277,7 +274,7 @@ const App = () => {
 
           {showCode ?
             <GeneratedCode expansion={expansion} /> :
-            <CoefficientList coefficients={coefficients} maxOrder={maxOrder} />}
+            <CoefficientList coefficients={coefficients} maxOrder={maxNumTerms} />}
         </div>
       </div>
     </ConfigProvider>
