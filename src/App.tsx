@@ -3,7 +3,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import { useCanvas } from "./hooks/use-canvas"
-import { IPlotParams, drawPlot, numberString } from "./util/plot"
+import { IPlotParams, PlotStyle, drawPlot, numberString } from "./util/plot"
 import { ChebyshevExpansion } from "./util/chebyshev-expansion"
 import { Checkbox, ConfigProvider, Input, Segmented, Slider } from "antd"
 import { HelpModal } from "./components/HelpModal"
@@ -14,7 +14,7 @@ import { CoefficientList } from "./components/CoefficientList"
 const initialTargetFunction = "Math.exp(-0.4 * x) * Math.sin(x * x)"
 const initialXMin = 0
 const initialXMax = 3.6
-const maxNumTerms = 30
+const maxNumTerms = 40
 const initialNumTerms = 11
 
 const numberStringIsValid = (string: string): boolean => {
@@ -132,17 +132,29 @@ const App = () => {
             maxError = error.y
           }
         })
+        
         approxPlotParams.current = {
           graphs: [
             {
               color: "black",
               legend: "f(x)",
+              style: PlotStyle.solid,
               points: functionPoints
             },
             {
               color: "#52AE1F",
               legend: (numTerms) + " term approximation",
+              style: PlotStyle.solid,
               points: approximationPoints
+            },
+            {
+              color: "#52AE1F",
+              style: PlotStyle.dot,
+              points: expansion.chebyshevNodes().map((x) => {
+                return {
+                  x, y: expansion.evaluate(x)
+                }
+              })
             }
           ]
         }
@@ -152,11 +164,21 @@ const App = () => {
             {
               color: "red",
               legend: "Approximation error",
+              style: PlotStyle.solid,
               points: approximationErrorPoints
             },
             {
               color: "red",
-              dashed: true,
+              style: PlotStyle.dot,
+              points: expansion.chebyshevNodes().map((x) => {
+                return {
+                  x, y: 0
+                }
+              })
+            },
+            {
+              color: "red",
+              style: PlotStyle.dashed,
               legend: "Max error " + numberString(maxError),
               points: [
                 { x: xMin, y: maxError }, { x: xMax, y: maxError }

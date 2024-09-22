@@ -2,10 +2,16 @@ export interface IPlotPoint {
     x: number, y: number
 }
 
+export enum PlotStyle {
+    solid,
+    dashed,
+    dot
+}
+
 export interface IPlotGraph {
-    legend: string
+    legend?: string
     color: string
-    dashed?: boolean
+    style: PlotStyle
     points: IPlotPoint[]
 }
 
@@ -95,33 +101,41 @@ export const drawPlot = (
         }
     }
 
-    const drawLegend = (left: number, top: number, text: string, color?: string, dashed?: boolean) => {
-        const textMetrics = context.measureText(text)
+    const drawLegend = (args: {
+        left: number, top: number, text: string, color?: string, style?: PlotStyle
+    }) => {
+        const textMetrics = context.measureText(args.text)
         const xMargin = 5
-        let xText = left + xMargin
+        let xText = args.left + xMargin
         let boxWidth = textMetrics.width + 2 * xMargin
-        if (color !== undefined) {
+        if (args.color !== undefined) {
             boxWidth += legendLineLength + 2 * xMargin
             xText += legendLineLength + xMargin
         }
         context.fillStyle = "rgba(255, 255, 255, 0.9)"
-        context.fillRect(left, top, boxWidth, legendHeight)
+        context.fillRect(args.left, args.top, boxWidth, legendHeight)
         context.fillStyle = "black"
         context.textAlign = "left"
         context.textBaseline = "middle"
-        context.fillText(text, xText, top + 0.5 * legendHeight)
+        context.fillText(args.text, xText, args.top + 0.5 * legendHeight)
 
-        if (color !== undefined) {
+        if (args.color !== undefined) {
             context.lineWidth = graphLineWidth
-            context.strokeStyle = color
-            if (dashed) {
+            context.strokeStyle = args.color
+            if (args.style == PlotStyle.dashed) {
                 context.setLineDash(lineDashPattern)
             } else {
                 context.setLineDash([])
             }
             context.beginPath()
-            context.moveTo(left + xMargin, top + 0.5 * legendHeight - 0.5 * graphLineWidth)
-            context.lineTo(left + xMargin + legendLineLength, top + 0.5 * legendHeight - 0.5 * graphLineWidth)
+            context.moveTo(
+                args.left + xMargin, 
+                args.top + 0.5 * legendHeight - 0.5 * graphLineWidth
+            )
+            context.lineTo(
+                args.left + xMargin + legendLineLength, 
+                args.top + 0.5 * legendHeight - 0.5 * graphLineWidth
+            )
             context.stroke()
         }
     }
@@ -129,24 +143,43 @@ export const drawPlot = (
     // Graphs
     params.graphs.forEach((graph) => {
         context.strokeStyle = graph.color
+        context.fillStyle = graph.color
         context.lineWidth = graphLineWidth
-        if (graph.dashed) {
+
+        if (graph.style == PlotStyle.dashed) {
             context.setLineDash(lineDashPattern)
         } else {
             context.setLineDash([])
         }
-        context.beginPath()
-        graph.points.forEach((point, pointIdx) => {
-            const screenPos = toScreen(point.x, point.y)
-            if (pointIdx == 0) {
-                context.moveTo(screenPos.x, screenPos.y)
-            } else {
-                context.lineTo(screenPos.x, screenPos.y)
-            }
-        })
-        context.stroke()
-        context.beginPath()
 
+        switch (graph.style) {
+            case PlotStyle.dashed: 
+            case PlotStyle.solid: {
+                context.beginPath()
+                graph.points.forEach((point, pointIdx) => {
+                    const screenPos = toScreen(point.x, point.y)
+                    if (pointIdx == 0) {
+                        context.moveTo(screenPos.x, screenPos.y)
+                    } else {
+                        context.lineTo(screenPos.x, screenPos.y)
+                    }
+                })
+                context.stroke()
+                break
+            }
+            case PlotStyle.dot: {
+                graph.points.forEach((point) => {
+                    const screenPos = toScreen(point.x, point.y)
+                    
+                    context.beginPath()
+                    context.arc(screenPos.x, screenPos.y, 2.4, 0, 2 * Math.PI)
+                    context.fill()
+                })
+                break
+            }
+        }
+        
+        context.beginPath()
         context.setLineDash([])
         context.lineWidth = axisLineWidth
         context.strokeStyle = "rgba(0, 0, 0, 0.1)"
@@ -191,14 +224,18 @@ export const drawPlot = (
     }
 
     // Legend boxes
-    params.graphs.forEach((graph, graphIdx) => {
-        drawLegend(
-            graphBox.left + legendPadding, 
-            graphBox.top + legendPadding + graphIdx * (legendHeight + legendPadding),
-            graph.legend,
-            graph.color,
-            graph.dashed
-        )
+    let legendRowIdx = 0
+    params.graphs.forEach((graph) => {
+        if (graph.legend) {
+            drawLegend({
+                left: graphBox.left + legendPadding, 
+                top: graphBox.top + legendPadding + legendRowIdx * (legendHeight + legendPadding),
+                text: graph.legend,
+                color: graph.color,
+                style: graph.style
+            })
+            legendRowIdx++
+        }
     })
 
 }

@@ -52,6 +52,17 @@ export class ChebyshevExpansion {
         this.coeffs[1] += b;
     }
 
+    chebyshevNodes(): number[] {
+        const nodes: number[] = []
+        for (let i = 0; i < this.coeffs.length; i++) {
+            const xRel = 0.5 * (1.0 + Math.cos(Math.PI * (i + 0.5) / this.coeffs.length))
+            const x = this.xMin + (this.xMax - this.xMin) * xRel
+            nodes.push(x)
+        }
+
+        return nodes
+    }
+
     evaluate(x: number): number {
         const rangeScale = 4.0 / (this.xMax - this.xMin)
         let x_rel_2 = -2.0 + (x - this.xMin) * rangeScale;
