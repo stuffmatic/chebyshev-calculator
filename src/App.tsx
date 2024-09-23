@@ -1,6 +1,3 @@
-// import reactLogo from './assets/react.svg'
-// import viteLogo from '/vite.svg'
-
 import { useEffect, useRef, useState } from "react"
 import { useCanvas } from "./hooks/use-canvas"
 import { IPlotParams, PlotStyle, drawPlot, numberString } from "./util/plot"
@@ -10,6 +7,8 @@ import { HelpModal } from "./components/HelpModal"
 import { ControlLabel } from "./components/ControlLabel"
 import { GeneratedCode } from "./components/GeneratedCode"
 import { CoefficientList } from "./components/CoefficientList"
+import GithubIcon from './assets/icon_github.svg'
+import HelpIcon from './assets/icon_help.svg'
 
 const initialTargetFunction = "Math.exp(-0.4 * x) * Math.sin(x * x)"
 const initialXMin = 0
@@ -142,7 +141,7 @@ const App = () => {
         approxPlotParams.current = {
           graphs: [
             {
-              color: "black",
+              color: "rgba(0,0,0,1)",
               legend: "f(x)",
               style: PlotStyle.solid,
               points: functionPoints
@@ -224,10 +223,13 @@ const App = () => {
     >
       {isShowingHelpModal ? <HelpModal onClose={() => setIsShowingHelpModal(false)} ></HelpModal> : null}
       
-
       <div id="top-bar-container">
         <div id="title-bar">
-          <strong style={{ fontFamily: "InterSemibold", fontSize: "140%", marginTop: "-3px", marginBottom: "1px" }}>Chebyshev approximation calculator</strong>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <strong style={{ fontFamily: "InterSemibold", fontSize: "140%", marginTop: "-3px", marginBottom: "1px" }}>Chebyshev approximation calculator</strong>
+            <button onClick={() => setIsShowingHelpModal(true)}><img style={{width: "26px"}} src={HelpIcon} /></button>
+            <a target="_blank" href="https://github.com/stuffmatic/chebyshev-calculator"><img style={{width: "26px"}} src={GithubIcon} /></a>
+          </div>          
           <div className="dimmed">Generates code for efficiently approximating mathematical functions.</div>
         </div>
         <div id="gui-controls-bar">
