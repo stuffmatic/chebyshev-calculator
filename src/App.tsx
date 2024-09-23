@@ -16,6 +16,8 @@ const initialXMin = 0
 const initialXMax = 3.6
 const maxNumTerms = 40
 const initialNumTerms = 11
+const plotSampleDistance = 3
+const plotMaxSampleCount = 500
 
 const numberStringIsValid = (string: string): boolean => {
   const parseResult = parseFloat(string)
@@ -92,7 +94,11 @@ const App = () => {
     setTargetFunctionStringIsValid(false)
     try {
       const xValues: number[] = []
-      const sampleCount = 200
+      const sampleCount = Math.min(
+        plotMaxSampleCount, 
+        (approxCanvasRef.current?.clientWidth ?? 1) / plotSampleDistance
+      )
+      // console.log({sampleCount})
       for (let i = 0; i < sampleCount; i++) {
         const x = xMin + i / (sampleCount - 1) * (xMax - xMin)
         xValues.push(x)
