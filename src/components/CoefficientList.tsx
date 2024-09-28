@@ -8,12 +8,35 @@ export const CoefficientList = (props: { coefficients: number[], maxOrder: numbe
       <div>
         {(new Array<number>(props.maxOrder)).fill(0).map((_, ci) => {
           const c = props.coefficients[ci]
-  
-          return <div style={{ display: "flex", alignItems: "center", width: "100%" }} key={ci}>
-            <div style={{ padding: "4px", width: "30px", borderBottom: "1px solid #f0f0f0" }} >c{ci}</div>
-            <div style={{ position: "relative", width: "100%", borderLeft: "1px solid #f0f0f0", borderBottom: "1px solid #f0f0f0", padding: "4px" }}>
-              <div style={{ zIndex: -1, visibility: c === undefined ? "hidden" : "inherit", top: "50%", transform: "translate(0%, -50%)", height: "70%", backgroundColor: "#CCE3C7", position: "absolute", width: Math.round(100 * relativeBarLengths[ci]) + "%" }}></div>
-              {c}
+          return <div style={{ display: "flex", alignItems: "center", width: "100%", marginTop: "2px" }} key={ci}>
+            <div style={{ 
+              opacity: c === undefined ? 0.3 : 1, 
+              padding: "4px 4px 4px 0px", 
+              width: "20px" 
+            }} >
+              c<sub>{ci}</sub>
+            </div>
+            <div style={{
+              marginRight: "6px",
+              visibility: c === undefined ? "hidden" : "inherit"
+            }}>
+            =
+            </div>
+            <div style={{ position: "relative", flex: 1, padding: "4px 0px 4px 0px " }}>
+              <div style={{ 
+                zIndex: -1, 
+                visibility: c === undefined ? "hidden" : "inherit", 
+                top: "50%", 
+                transform: "translate(0%, -50%)", 
+                height: "90%", 
+                backgroundColor: "#CCE3C7", 
+                position: "absolute", 
+                borderRadius: "2px",
+                width: Math.round(100 * relativeBarLengths[ci]) + "%" }}>
+              </div>
+              <div style={{marginLeft: "4px"}}>
+                {c}
+              </div>
             </div>
           </div>
         })}

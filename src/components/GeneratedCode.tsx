@@ -22,7 +22,7 @@ export const GeneratedCode = (props: { expansion: ChebyshevExpansion }) => {
     const liveUrl = playgroundUrl(targetLanguage)
     
     return <>
-        <div style={{ display: "flex", width: "100%", alignItems: "center", marginBottom: "10px" }}>
+        <div style={{ display: "flex", width: "100%", alignItems: "center" }}>
             <ControlLabel>Language</ControlLabel>
             <Select
                 style={{ marginLeft: "10px", flex: 1 }}
@@ -43,7 +43,7 @@ export const GeneratedCode = (props: { expansion: ChebyshevExpansion }) => {
         </div>
         {
             liveUrl !== undefined ? 
-            <div style={{ opacity: 0.6, marginBottom: "10px"}}>
+            <div className="dimmed" style={{ lineHeight: "46px"}}>
                 Run this code in your browser by pasting it <a href={ liveUrl } target="_blank">here</a>.
             </div> : null
         }

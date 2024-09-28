@@ -1,6 +1,6 @@
-$breakpoint-sm: 660px;
+$breakpoint-sm: 800px;
 $result-panel-width: 360px;
-$padding: 14px;
+$padding: 12px;
 
 /* be-vietnam-pro-regular - latin-ext_latin */
 @font-face {
@@ -59,6 +59,10 @@ a, a:active, a:visited, a:hover {
   color: #135af2;
 }
 
+html {
+  -webkit-text-size-adjust: 100%; /* Prevent font scaling in landscape while allowing user zoom */
+}
+
 html,
 body,
 #root {
@@ -79,15 +83,33 @@ body,
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  margin-bottom: 13px;
 }
 
-#main-gui-container {
+#title {
+  font-family: "InterSemibold";
+  font-size: 112%;
+  flex: 1;
+  @media only screen and (min-width: $breakpoint-sm) {
+    font-size: 135%;
+    flex: inherit;
+  }
+}
+
+#columns-container {
+  margin-left: $padding;
+  margin-right: $padding;  
+  margin-bottom: $padding;
   display: flex;
+  flex: 1;
   flex-direction: column;
   @media only screen and (min-width: $breakpoint-sm) {
     flex-direction: row;
   }
+}
+
+#left-column-container {
+  display: flex;
+  flex-direction: column;
   flex: 1;
   // background-color: green;
 }
@@ -98,10 +120,10 @@ body,
   // background-color: orange;
   // height: 100%;
   
-  margin: 0px 10px 10px 10px;
+  // margin: 0px 10px 10px 10px;
   
   @media only screen and (min-width: $breakpoint-sm) {
-    margin: 0px 0px 10px 10px;
+    // margin: 0px 0px 10px 10px;
     padding-bottom: 0;
     flex: 1;
   }
@@ -134,7 +156,7 @@ body,
 }
 
 #gui-controls-bar {
-  max-width: $breakpoint-sm;
+  
   display: flex;
   flex-flow: row wrap;
   justify-content: left;
@@ -202,15 +224,21 @@ canvas {
   width: 100%;
 }
 
-#result-container {
+#right-column-container {
   width: 100%;
   display: flex;
-  padding: 0px 10px 0px 10px;
+  
   box-sizing: border-box;
   align-items: flex-start;
   flex-direction: column;
+  margin-top: 2 * $padding;
+  padding: 0;
   @media only screen and (min-width: $breakpoint-sm) {
+    padding: 0px 0px 0px $padding;
+    margin-top: 0;
     width: $result-panel-width;
+    margin-left: $padding;
+    border-left: 1px solid lightgray;
   }
   // background-color: blue;
 }
@@ -218,13 +246,10 @@ canvas {
 #segmented-button-container {
   width: 100%;
   display: flex;
-  justify-content: center;
-  padding-top: 20px;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
   
-  @media only screen and (min-width: $breakpoint-sm) {
-    justify-content: left;
-    padding-top: 0;
-  }
 }
 
 .code {
@@ -238,7 +263,7 @@ canvas {
 }
 
 .dimmed {
-  color: #808080;
+  color: #959595;
 }
 
 body {

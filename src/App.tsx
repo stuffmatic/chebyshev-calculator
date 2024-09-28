@@ -15,7 +15,7 @@ const initialXMin = 0
 const initialXMax = 3.6
 const maxNumTerms = 40
 const initialNumTerms = 11
-const plotSampleDistance = 3
+const plotSampleDistance = 1
 const plotMaxSampleCount = 500
 
 const numberStringIsValid = (string: string): boolean => {
@@ -76,11 +76,11 @@ const App = () => {
     }
   }, [])
 
-  const expansion = new ChebyshevExpansion({ 
-    xMin, 
-    xMax, 
-    numberOfTerms: numTerms, 
-    matchLeft, 
+  const expansion = new ChebyshevExpansion({
+    xMin,
+    xMax,
+    numberOfTerms: numTerms,
+    matchLeft,
     matchRight,
     description: targetFunctionString,
     f: (x: number) => { // x needs to be in scope for eval, don't comment out
@@ -94,7 +94,7 @@ const App = () => {
     try {
       const xValues: number[] = []
       const sampleCount = Math.min(
-        plotMaxSampleCount, 
+        plotMaxSampleCount,
         (approxCanvasRef.current?.clientWidth ?? 1) / plotSampleDistance
       )
       // console.log({sampleCount})
@@ -114,7 +114,7 @@ const App = () => {
 
       if (xValues.length == fValues.length) {
         setTargetFunctionStringIsValid(true)
-        
+
 
         setCoefficients(expansion.coeffs)
         const functionPoints = xValues.map((x, xi) => {
@@ -137,7 +137,7 @@ const App = () => {
             maxError = error.y
           }
         })
-        
+
         approxPlotParams.current = {
           graphs: [
             {
@@ -222,79 +222,86 @@ const App = () => {
       }}
     >
       {isShowingHelpModal ? <HelpModal onClose={() => setIsShowingHelpModal(false)} ></HelpModal> : null}
-      
+
       <div id="top-bar-container">
         <div id="title-bar">
-          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <strong style={{ fontFamily: "InterSemibold", fontSize: "140%", marginTop: "-3px", marginBottom: "1px" }}>Chebyshev approximation calculator</strong>
-            <button onClick={() => setIsShowingHelpModal(true)}><img style={{width: "26px"}} src={HelpIcon} /></button>
-            <a target="_blank" href="https://github.com/stuffmatic/chebyshev-calculator"><img style={{width: "26px"}} src={GithubIcon} /></a>
-          </div>          
+          <div style={{ display: "flex", gap: "10px", marginBottom: "-3px" }}>
+            <div style={{display: "flex", alignItems: "center", flexDirection: "row", flex: 1, gap: "8px"}}>
+            <div id="title" style={{ marginTop: "-8px" }}>Chebyshev approximation calculator</div>  
+            <a onClick={() => setIsShowingHelpModal(true)}><img style={{ width: "26px" }} src={HelpIcon} /></a>
+            <a target="_blank" href="https://github.com/stuffmatic/chebyshev-calculator"><img style={{ width: "26px" }} src={GithubIcon} /></a>
+
+            </div>
+          </div>
           <div className="dimmed">Generates code for efficiently approximating mathematical functions.</div>
-        </div>
-        <div id="gui-controls-bar">
-          <div id="function-string-input">
-            <ControlLabel>f(x)</ControlLabel>
-            <Input style={{ flex: 1 }} status={targetFunctionStringIsValid ? undefined : "error"} value={targetFunctionString} onChange={e => setTargetFunctionString(e.target.value)} placeholder="f(x) as a valid javascript expression" />
-          </div>
-
-          <div id="x-min-input">
-            <ControlLabel><span>x<sub>min</sub></span></ControlLabel>
-            <Input
-              value={xMinString}
-              status={numberStringIsValid(xMinString) ? undefined : "error"}
-              onChange={e => {
-                setXMinString(e.target.value)
-                const number = parseFloat(e.target.value)
-                if (numberStringIsValid(e.target.value)) {
-                  setXMin(number)
-                }
-              }}
-              onBlur={() => {
-                setXMinString(xMin.toString())
-              }}
-            />
-          </div>
-
-          <div id="x-max-input">
-            <ControlLabel><span>x<sub>max</sub></span></ControlLabel>
-            <Input
-              value={xMaxString}
-              status={numberStringIsValid(xMaxString) ? undefined : "error"}
-              onChange={e => {
-                setXMaxString(e.target.value)
-                const number = parseFloat(e.target.value)
-                if (numberStringIsValid(e.target.value)) {
-                  setXMax(number)
-                }
-              }}
-              onBlur={() => {
-                setXMaxString(xMax.toString())
-              }} />
-          </div>
-          <div id="order-slider">
-            <ControlLabel># terms</ControlLabel><Slider tooltip={{ open: false }} style={{ width: "100%" }} min={1} max={maxNumTerms} value={numTerms} onChange={e => setNumTerms(e)} />
-          </div>
-          <div id="endpoint-match-checkboxes">
-            <ControlLabel>Match</ControlLabel>
-            <Checkbox checked={matchLeft} onChange={() => setMatchLeft((prev) => !prev)}><span>x<sub>min</sub></span></Checkbox>
-            <Checkbox checked={matchRight} onChange={() => setMatchRight((prev) => !prev)}><span>x<sub>max</sub></span></Checkbox>
-          </div>
+          
         </div>
       </div>
-      <div id="main-gui-container">
-        <div id="graphs-container">
-          <div id="approx-graph">
-            <canvas ref={approxCanvasRef}></canvas>
+
+      <div id="columns-container">
+        <div id="left-column-container">
+          <div id="gui-controls-bar">
+            <div id="function-string-input">
+              <ControlLabel>f(x)</ControlLabel>
+              <Input style={{ flex: 1 }} status={targetFunctionStringIsValid ? undefined : "error"} value={targetFunctionString} onChange={e => setTargetFunctionString(e.target.value)} placeholder="f(x) as a valid javascript expression" />
+              <span>(i)</span>
+            </div>
+
+            <div id="x-min-input">
+              <ControlLabel><span>x<sub>min</sub></span></ControlLabel>
+              <Input
+                value={xMinString}
+                status={numberStringIsValid(xMinString) ? undefined : "error"}
+                onChange={e => {
+                  setXMinString(e.target.value)
+                  const number = parseFloat(e.target.value)
+                  if (numberStringIsValid(e.target.value)) {
+                    setXMin(number)
+                  }
+                }}
+                onBlur={() => {
+                  setXMinString(xMin.toString())
+                }}
+              />
+            </div>
+
+            <div id="x-max-input">
+              <ControlLabel><span>x<sub>max</sub></span></ControlLabel>
+              <Input
+                value={xMaxString}
+                status={numberStringIsValid(xMaxString) ? undefined : "error"}
+                onChange={e => {
+                  setXMaxString(e.target.value)
+                  const number = parseFloat(e.target.value)
+                  if (numberStringIsValid(e.target.value)) {
+                    setXMax(number)
+                  }
+                }}
+                onBlur={() => {
+                  setXMaxString(xMax.toString())
+                }} />
+            </div>
+            <div id="order-slider">
+              <ControlLabel>Terms</ControlLabel><Slider tooltip={{ open: false }} style={{ width: "100%" }} min={1} max={maxNumTerms} value={numTerms} onChange={e => setNumTerms(e)} />
+            </div>
+            <div id="endpoint-match-checkboxes">
+              <ControlLabel>Match</ControlLabel>
+              <Checkbox checked={matchLeft} onChange={() => setMatchLeft((prev) => !prev)}><span>x<sub>min</sub></span></Checkbox>
+              <Checkbox checked={matchRight} onChange={() => setMatchRight((prev) => !prev)}><span>x<sub>max</sub></span></Checkbox>
+            </div>
           </div>
-          <div id="error-graph">
-            <canvas ref={errorCanvasRef}></canvas>
+          <div id="graphs-container">
+            <div id="approx-graph">
+              <canvas ref={approxCanvasRef}></canvas>
+            </div>
+            <div id="error-graph">
+              <canvas ref={errorCanvasRef}></canvas>
+            </div>
           </div>
         </div>
-        <div id="result-container">
+        <div id="right-column-container">
           <div id="segmented-button-container">
             <Segmented
-              style={{ marginBottom: "10px" }}
               options={['Coefficients', 'Generated code']}
               onChange={(value) => {
                 setShowCode(value == "Generated code")
@@ -307,6 +314,7 @@ const App = () => {
             <CoefficientList coefficients={coefficients} maxOrder={maxNumTerms} />}
         </div>
       </div>
+
     </ConfigProvider>
   )
 }
