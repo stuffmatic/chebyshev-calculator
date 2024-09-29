@@ -88,7 +88,7 @@ const generatePythonCode = (expansion: ChebyshevExpansion): string => {
         "    d = 0",
         "    dd = 0",
         "    temp = 0",
-        "    for ci in coeffs[-1:0:1]:",
+        "    for ci in coeffs[-1:0:-1]:",
         "        temp = d",
         "        d = x_rel_2 * d - dd + ci",
         "        dd = temp",
