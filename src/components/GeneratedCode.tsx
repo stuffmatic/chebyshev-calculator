@@ -1,7 +1,8 @@
 import { useRef, useState } from "react"
 import { TargetLanguage, generateCode, targetLanguages } from "../util/generate-code"
 import { ControlLabel } from "./ControlLabel"
-import { Button, Select, Tooltip } from "antd"
+import Button from "antd/lib/button"
+import Select from "antd/lib/select"
 import { ScrollableContent } from "./ScrollableContent"
 import { ChebyshevExpansion } from "../util/chebyshev-expansion"
 

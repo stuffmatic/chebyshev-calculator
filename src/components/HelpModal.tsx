@@ -1,4 +1,4 @@
-import { Button } from "antd"
+import Button from "antd/lib/button"
 import { useEffect } from "react"
 
 const rootElementId = "root"
