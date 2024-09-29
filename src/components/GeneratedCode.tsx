@@ -55,7 +55,7 @@ export const GeneratedCode = (props: { expansion: ChebyshevExpansion }) => {
         </div>
         {
             liveUrl !== undefined ?
-                <div className="dimmed" style={{ lineHeight: "46px" }}>
+                <div className="dimmed" style={{ marginTop: "13px", marginBottom: "14px" }}>
                     Run this code in your browser by pasting it <a href={liveUrl} target="_blank">here</a>.
                 </div> : null
         }
