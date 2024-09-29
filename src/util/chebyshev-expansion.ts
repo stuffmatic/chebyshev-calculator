@@ -20,7 +20,7 @@ export class ChebyshevExpansion {
         this.matchLeft = args.matchLeft
         this.matchRight = args.matchRight
         this.description = args.description
-
+        
         for (let i = 0; i < args.numberOfTerms; i++) {
             this.coeffs.push(0)
         }
@@ -37,19 +37,21 @@ export class ChebyshevExpansion {
 
         // Add a linear term a + bx that offsets the left and right
         // ends to the desired values
-        let xMinOffs = 0
-        let xMaxOffs = 0
-        if (args.matchLeft) {
-            xMinOffs = args.f(args.xMin) - this.evaluate(args.xMin)
-        } 
-        if (args.matchRight) {
-            xMaxOffs = args.f(args.xMax) - this.evaluate(args.xMax)
+        if (args.numberOfTerms > 1) {
+            let xMinOffs = 0
+            let xMaxOffs = 0
+            if (args.matchLeft) {
+                xMinOffs = args.f(args.xMin) - this.evaluate(args.xMin)
+            } 
+            if (args.matchRight) {
+                xMaxOffs = args.f(args.xMax) - this.evaluate(args.xMax)
+            }
+                
+            let a = 0.5 * (xMaxOffs + xMinOffs);
+            let b = 0.5 * (xMaxOffs - xMinOffs);
+            this.coeffs[0] += 2 * a;
+            this.coeffs[1] += b;
         }
-            
-        let a = 0.5 * (xMaxOffs + xMinOffs);
-        let b = 0.5 * (xMaxOffs - xMinOffs);
-        this.coeffs[0] += 2 * a;
-        this.coeffs[1] += b;
     }
 
     chebyshevNodes(): number[] {
