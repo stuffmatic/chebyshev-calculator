@@ -5,8 +5,6 @@ import Button from "antd/lib/button"
 import Select from "antd/lib/select"
 import { ScrollableContent } from "./ScrollableContent"
 import { ChebyshevExpansion } from "../util/chebyshev-expansion"
-import SuccessIcon from './../assets/icon_check.svg'
-import ErroIcon from './../assets/icon_error.svg'
 
 const playgroundUrl = (language: TargetLanguage): string | undefined => {
     switch (language) {
@@ -31,7 +29,12 @@ const ResultIcon = (props: { success: boolean }) => {
         height: "20px",
         borderRadius: "10px",
         backgroundColor: props.success ? "#52AE1F" : "red"
-    }}><img style={{ width: "16px" }} src={props.success ? SuccessIcon : ErroIcon} /></div>
+    }}>
+       { props.success ? <svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -960 960 960" width="16px" fill="#ffffff"><path d="M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z"/></svg>:
+        <svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -960 960 960" width="16px" fill="#ffffff"><path d="M440-400v-360h80v360h-80Zm0 200v-80h80v80h-80Z"/></svg>
+        }
+
+    </div>
 }
 
 export const GeneratedCode = (props: { expansion: ChebyshevExpansion }) => {

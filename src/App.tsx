@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react"
 import { useCanvas } from "./hooks/use-canvas"
 import { IPlotParams, PlotStyle, drawPlot, numberString } from "./util/plot"
 import { ChebyshevExpansion } from "./util/chebyshev-expansion"
-import { Checkbox, ConfigProvider, Input, Segmented, Slider } from "antd"
 import Checkbox from "antd/lib/checkbox"
 import Input from "antd/lib/input"
 import Segmented from "antd/lib/segmented"
@@ -88,9 +87,11 @@ const App = () => {
     matchLeft,
     matchRight,
     description: targetFunctionString,
+    /* eslint-disable */
     f: (x: number) => { // x needs to be in scope for eval, don't comment out
       return eval(targetFunctionString) as number
     }
+    /* eslint-enable */
   })
 
   useEffect(() => {
@@ -108,6 +109,7 @@ const App = () => {
         xValues.push(x)
       }
       const fValues: number[] = []
+      // eslint-disable-line
       xValues.forEach((x) => { // x needs to be in scope for eval
         const f = eval(targetFunctionString)
         if (typeof f === 'number') {
@@ -249,7 +251,6 @@ const App = () => {
             <div id="function-string-input">
               <ControlLabel>f(x)</ControlLabel>
               <Input style={{ flex: 1 }} status={targetFunctionStringIsValid ? undefined : "error"} value={targetFunctionString} onChange={e => setTargetFunctionString(e.target.value)} placeholder="f(x) as a valid javascript expression" />
-              <span>(i)</span>
             </div>
 
             <div id="x-min-input">
@@ -287,7 +288,8 @@ const App = () => {
                 }} />
             </div>
             <div id="order-slider">
-              <ControlLabel>Terms</ControlLabel><Slider tooltip={{ open: false }} style={{ width: "100%" }} min={1} max={maxNumTerms} value={numTerms} onChange={e => setNumTerms(e)} />
+              <ControlLabel>Terms</ControlLabel>
+              <Slider tooltip={{ open: false }} style={{ width: "100%" }} min={1} max={maxNumTerms} value={numTerms} onChange={e => setNumTerms(e)} />
             </div>
             <div id="endpoint-match-checkboxes">
               <ControlLabel>Match</ControlLabel>

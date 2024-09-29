@@ -286,3 +286,14 @@ body {
     position: absolute
   }
 }
+
+ol {
+  margin: 0;
+  padding: 0;
+  margin-bottom: 20px;
+  
+  li {
+    list-style-position: inside;
+    margin-bottom: 14px;
+  }
+}

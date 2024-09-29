@@ -43,7 +43,7 @@ const generateCCode = (expansion: ChebyshevExpansion): string => {
         "#include <stdio.h>",
         "",
         ...evalFunctionCommentLines().map((l) => "// " + l),
-        "float evaluate(const float* coeffs, int num_coeffs, float x, float x_min, float x_max) {",
+        "float chebyshev_eval(const float* coeffs, int num_coeffs, float x, float x_min, float x_max) {",
         "    float x_rel_2 = -2.0 + 4.0 * (x - x_min) / (x_max - x_min);",
         "    float d = 0.0;",
         "    float dd = 0.0;",
@@ -69,7 +69,7 @@ const generateCCode = (expansion: ChebyshevExpansion): string => {
         ...exampleEvalCommentLines().map((l) => "    // " + l),
         
         "    float x_mid = 0.5 * (x_min + x_max);",
-        "    float value_at_x_mid = evaluate(coeffs, NUM_COEFFS, x_mid, x_min, x_max);",
+        "    float value_at_x_mid = chebyshev_eval(coeffs, NUM_COEFFS, x_mid, x_min, x_max);",
         '    printf("Approximated value at x=%f is %f (single precision)\\n", x_mid, value_at_x_mid);',
         '    printf("Should be ' + expansion.evaluate(0.5 * (expansion.xMin + expansion.xMax)) + ' (double precision)");',
         "    return 0;",
@@ -83,7 +83,7 @@ const generateCCode = (expansion: ChebyshevExpansion): string => {
 const generatePythonCode = (expansion: ChebyshevExpansion): string => {
     const lines: string[] = [
         ...evalFunctionCommentLines().map((line) => "# " + line),
-        "def evaluate(coeffs, x, x_min, x_max):",
+        "def chebyshev_eval(coeffs, x, x_min, x_max):",
         "    x_rel_2 = -2 + 4 * (x - x_min) / float(x_max - x_min)",
         "    d = 0",
         "    dd = 0",
@@ -103,7 +103,7 @@ const generatePythonCode = (expansion: ChebyshevExpansion): string => {
         "",
         ...exampleEvalCommentLines().map((line) => "# " + line),
         "x_mid = 0.5 * (x_min + x_max)",
-        "value_at_x_mid = evaluate(coeffs, x_mid, x_min, x_max)",
+        "value_at_x_mid = chebyshev_eval(coeffs, x_mid, x_min, x_max)",
         'print("Value at", x_mid , "is", str(value_at_x_mid))',
         'print("Should be", ' + expansion.evaluate(0.5 * (expansion.xMin + expansion.xMax)) + ', "(double precision)");',
     ]
@@ -114,7 +114,7 @@ const generatePythonCode = (expansion: ChebyshevExpansion): string => {
 const generateRustCode = (expansion: ChebyshevExpansion): string => {
     return [
         ...evalFunctionCommentLines().map((line) => "// " + line),
-        "fn evaluate(coeffs: &[f32], x: f32, x_min: f32, x_max: f32) -> f32 {",
+        "fn chebyshev_eval(coeffs: &[f32], x: f32, x_min: f32, x_max: f32) -> f32 {",
         "    let x_rel_2 = -2.0 + 4.0 * (x - x_min) / (x_max - x_min);",
         "    let mut d = 0.0;",
         "    let mut dd = 0.0;",
@@ -137,7 +137,7 @@ const generateRustCode = (expansion: ChebyshevExpansion): string => {
         "fn main() {",
         ...exampleEvalCommentLines().map((line) => "    // " + line),
         "    let x_mid = 0.5 * (X_MIN + X_MAX);",
-        "    let value_at_x_mid = evaluate(&COEFFS, x_mid, X_MIN, X_MAX);",
+        "    let value_at_x_mid = chebyshev_eval(&COEFFS, x_mid, X_MIN, X_MAX);",
         '    println!("Approximated value at x={} is {} (single precision)", x_mid, value_at_x_mid);',
         '    println!("Should be ' + expansion.evaluate(0.5 * (expansion.xMin + expansion.xMax)) + ' (double precision)");',
         "}"
