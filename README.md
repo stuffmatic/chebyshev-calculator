@@ -2,10 +2,11 @@
 
 This is a web app that generates code for efficiently approximating mathematical functions of one variable (you can [try it out here](https://stuffmatic.com/chebyshev)). This can for example be useful in resource constrained environments like embedded systems, where standard math functions are either not available or prohibitively expensive to evaluate. The app can currently generate C, Python and Rust code.
 
-
 Functions are approximated using so called [Chebyshev expansions](https://en.wikipedia.org/wiki/Chebyshev_polynomials), which are numerically well behaved and can be [evaluated very efficiently](https://en.wikipedia.org/wiki/Clenshaw_algorithm). From a programmer's point of view, a Chebyshev expansion is just an array of coefficients that is passed to a simple function that iterates over them to evaluate the approximation. This code is generated for you. For smooth enough target functions, the coefficients quickly approach zero and only a few are needed to get a close approximation.
 
 [![](screenshot.png)](https://stuffmatic.com/chebyshev)
+
+If you need to compute and evaluate Chebyshev expansions in Rust, check out the [microcheby ](https://github.com/stuffmatic/microcheby) crate.
 
 ## User guide
 
@@ -17,7 +18,7 @@ Functions are approximated using so called [Chebyshev expansions](https://en.wik
 ### Pro tips
 
 * If you're not able to approximate your function with a reasonable number of coefficients, consider splitting the range into smaller intervals and compute separate approximations for each of them.
-* You can enter any valid Javascript expression of `x` into the _f(x)_ field. If your function is too complex to be expressed as a one-liner, you may want to consider dropping the self contained [`ChebyshevExpansion`](src/util/chebyshev-expansion.ts) class into your own Typescipt code.
+* You can enter any valid Javascript expression of `x` into the _f(x)_ field, but if your function is too complex to be expressed as a one-liner, you may want to consider dropping the self contained [`ChebyshevExpansion`](src/util/chebyshev-expansion.ts) class into your own Typescipt code.
 
 ## Building and running
 
