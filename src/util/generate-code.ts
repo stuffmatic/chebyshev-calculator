@@ -13,9 +13,14 @@ export const targetLanguages: TargetLanguage[] = [
 ]
 
 const coefficientsCommentLines = (expansion: ChebyshevExpansion): string[] => {
+    const sanitizedDescription = () => {
+        // TODO: make sure the description does not contain any characters
+        // messing up commenting. Just returning the description as is for now.
+        return expansion.description
+    }
     return [
         expansion.coeffs.length + " term expansion coefficients for",
-        "f(x)=" + expansion.description,
+        "f(x)=" + sanitizedDescription(),
         "x_min=" + expansion.xMin + ", x_max=" + expansion.xMax
     ]
 }
