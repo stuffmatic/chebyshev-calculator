@@ -30,8 +30,8 @@ const ResultIcon = (props: { success: boolean }) => {
         borderRadius: "10px",
         backgroundColor: props.success ? "#52AE1F" : "red"
     }}>
-       { props.success ? <svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -960 960 960" width="16px" fill="#ffffff"><path d="M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z"/></svg>:
-        <svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -960 960 960" width="16px" fill="#ffffff"><path d="M440-400v-360h80v360h-80Zm0 200v-80h80v80h-80Z"/></svg>
+        {props.success ? <svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -960 960 960" width="16px" fill="#ffffff"><path d="M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z" /></svg> :
+            <svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -960 960 960" width="16px" fill="#ffffff"><path d="M440-400v-360h80v360h-80Zm0 200v-80h80v80h-80Z" /></svg>
         }
 
     </div>
@@ -62,7 +62,6 @@ export const GeneratedCode = (props: { expansion: ChebyshevExpansion }) => {
                 value={targetLanguage}
                 onChange={lang => setTargetLanguage(lang)}
                 options={
-                    //[{ value: 'sample', label: <span>sample</span> }]
                     targetLanguages.map((lang) => {
                         return {
                             value: lang, label: <span>{lang}</span>

@@ -28,6 +28,17 @@ const numberStringIsValid = (string: string): boolean => {
   return isValid
 }
 
+const IconButton = (props: { iconUrl: string, onClick: () => void }) => {
+  return <button style={{
+    padding: "4px",
+    backgroundColor: "white",
+    border: "none",
+    cursor: "pointer",
+  }} onClick={props.onClick}>
+    <img style={{display: "flex" }} src={props.iconUrl}></img>
+  </button>
+}
+
 const App = () => {
   const [showCode, setShowCode] = useState(false)
   const [targetFunctionString, setTargetFunctionString] = useState(initialTargetFunction)
@@ -232,11 +243,11 @@ const App = () => {
 
       <div id="top-bar-container">
         <div id="title-bar">
-          <div style={{ display: "flex", gap: "10px", marginBottom: "-3px" }}>
-            <div style={{display: "flex", alignItems: "center", flexDirection: "row", flex: 1, gap: "8px"}}>
-            <div id="title" style={{ marginTop: "-8px" }}>Chebyshev approximation calculator</div>  
-            <a onClick={() => setIsShowingHelpModal(true)}><img style={{ width: "26px" }} src={HelpIcon} /></a>
-            <a target="_blank" href="https://github.com/stuffmatic/chebyshev-calculator"><img style={{ width: "26px" }} src={GithubIcon} /></a>
+          <div style={{ display: "flex", gap: "10px", marginBottom: "2px" }}>
+            <div style={{display: "flex", alignItems: "center", flexDirection: "row", gap: "6px"}}>
+            <div id="title">Chebyshev approximation calculator</div>  
+            <IconButton onClick={() => setIsShowingHelpModal(true)} iconUrl={HelpIcon} />
+            <a target="_blank" href="https://github.com/stuffmatic/chebyshev-calculator"><img style={{ display: "flex", width: "26px" }} src={GithubIcon} /></a>
 
             </div>
           </div>
@@ -293,8 +304,8 @@ const App = () => {
             </div>
             <div id="endpoint-match-checkboxes">
               <ControlLabel>Match</ControlLabel>
-              <Checkbox checked={matchLeft} onChange={() => setMatchLeft((prev) => !prev)}><span>x<sub>min</sub></span></Checkbox>
-              <Checkbox checked={matchRight} onChange={() => setMatchRight((prev) => !prev)}><span>x<sub>max</sub></span></Checkbox>
+              <Checkbox disabled={numTerms <= 1} checked={matchLeft} onChange={() => setMatchLeft((prev) => !prev)}><span>x<sub>min</sub></span></Checkbox>
+              <Checkbox disabled={numTerms <= 1} checked={matchRight} onChange={() => setMatchRight((prev) => !prev)}><span>x<sub>max</sub></span></Checkbox>
             </div>
           </div>
           <div id="graphs-container">
