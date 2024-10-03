@@ -37,9 +37,9 @@ const ResultIcon = (props: { success: boolean }) => {
     </div>
 }
 
-export const GeneratedCode = (props: { expansion: ChebyshevExpansion }) => {
+export const GeneratedCode = (props: { expansion: ChebyshevExpansion | null }) => {
     const [targetLanguage, setTargetLanguage] = useState<TargetLanguage>(TargetLanguage.c)
-    const codeSnippet = generateCode(targetLanguage, props.expansion)
+    const codeSnippet = props.expansion ? generateCode(targetLanguage, props.expansion) : ""
     const liveUrl = playgroundUrl(targetLanguage)
     const [donePopupResult, setDonePopupResult] = useState<boolean | null>(null)
     const donePopupTimeout = useRef<number | null>(null)
@@ -58,6 +58,7 @@ export const GeneratedCode = (props: { expansion: ChebyshevExpansion }) => {
         <div style={{ display: "flex", width: "100%", alignItems: "center" }}>
             <ControlLabel>Language</ControlLabel>
             <Select
+                disabled={props.expansion == null}
                 style={{ marginLeft: "10px", flex: 1 }}
                 value={targetLanguage}
                 onChange={lang => setTargetLanguage(lang)}
@@ -70,7 +71,7 @@ export const GeneratedCode = (props: { expansion: ChebyshevExpansion }) => {
                 } />
 
             <div style={{ marginLeft: "10px", position: "relative" }}>
-                <Button onClick={() => {
+                <Button disabled={props.expansion == null} onClick={() => {
                     setDonePopupResult(null);
                     ((window.navigator as any).clipboard as any).writeText(codeSnippet).then(() => {
                         showResultIcon(true)
