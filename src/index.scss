@@ -157,9 +157,9 @@ body,
 
 #gui-controls-bar {
   
-  display: flex;
-  flex-flow: row wrap;
-  justify-content: left;
+  // display: flex;
+  // flex-flow: row wrap;
+  // justify-content: left;
   
 }
 
@@ -177,41 +177,63 @@ $controlSpacing: 6px;
 }
 
 #endpoint-match-checkboxes {
-  width: 100%;
-  @media only screen and (min-width: $breakpoint-sm) {
-    width: 30%;
-  }
   display: flex;
   align-items: center;
   margin-bottom: $controlSpacing;
 }
 
-#x-min-input {
-  width: 100%;
+#x-range-inputs-container {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0;
   @media only screen and (min-width: $breakpoint-sm) {
-    width: 50%;
+    gap: 12px;
+    flex-direction: row;
   }
+  
+}
+
+#x-min-input {
+  // width: 100%;
+  // @media only screen and (min-width: $breakpoint-sm) {
+  //   width: 50%;
+  // }
+  flex: 1;
   display: flex;
   align-items: center;
   margin-bottom: $controlSpacing;
 }
 
 #x-max-input {
-  width: 100%;
-  @media only screen and (min-width: $breakpoint-sm) {
+  // width: 100%;
+  // @media only screen and (min-width: $breakpoint-sm) {
     
-    width: 50%;
-  }
+    // width: 50%;
+  // }
+  flex: 1;
   box-sizing: border-box;
   display: flex;
   align-items: center;
   margin-bottom: $controlSpacing;
 }
 
-#order-slider {
-  width: 100%;
+#order-slider-container {
+  flex: 1;
+  display: flex;
+  gap: 0;
+  flex-direction: column;
+  // background-color: red;
   @media only screen and (min-width: $breakpoint-sm) {
-    width: 70%;
+    gap: 10px;
+    flex-direction: row;
+  }
+}
+
+#order-slider {
+  flex: 1;
+  @media only screen and (min-width: $breakpoint-sm) {
+    
   }
   
   display: flex;

@@ -220,8 +220,6 @@ const App = () => {
             points: [
               { x: xMin, y: maxError }, { x: xMax, y: maxError }
             ]
-            
-            
           }
         ]
       }
@@ -278,24 +276,27 @@ const App = () => {
               <Input style={{ flex: 1 }} status={targetFunctionStringIsValid ? undefined : "error"} value={targetFunctionString} onChange={e => setTargetFunctionString(e.target.value)} placeholder="f(x) as a valid javascript expression" />
             </div>
 
-            <div id="x-min-input">
-              <ControlLabel><span>x<sub>min</sub></span></ControlLabel>
-              <NumberInput value={xMin} valueIsValid={xMin < xMax} onChange={(value) => setXMin(value)} />
+            <div id="x-range-inputs-container">
+              <div id="x-min-input" >
+                <ControlLabel><span>x<sub>min</sub></span></ControlLabel>
+                <NumberInput value={xMin} valueIsValid={xMin < xMax} onChange={(value) => setXMin(value)} />
+              </div>
+              <div id="x-max-input">
+                <ControlLabel><span>x<sub>max</sub></span></ControlLabel>
+                <NumberInput value={xMax} valueIsValid={xMin < xMax} onChange={(value) => setXMax(value)} />
+              </div>
             </div>
 
-            <div id="x-max-input">
-              <ControlLabel><span>x<sub>max</sub></span></ControlLabel>
-              <NumberInput value={xMax} valueIsValid={xMin < xMax} onChange={(value) => setXMax(value)} />
-            </div>
-
-            <div id="order-slider">
-              <ControlLabel>Terms</ControlLabel>
-              <Slider tooltip={{ open: false }} style={{ width: "100%" }} min={1} max={maxNumTerms} value={numTerms} onChange={e => setNumTerms(e)} />
-            </div>
-            <div id="endpoint-match-checkboxes">
-              <ControlLabel>Match</ControlLabel>
-              <Checkbox disabled={numTerms <= 1} checked={matchLeft} onChange={() => setMatchLeft((prev) => !prev)}><span>x<sub>min</sub></span></Checkbox>
-              <Checkbox disabled={numTerms <= 1} checked={matchRight} onChange={() => setMatchRight((prev) => !prev)}><span>x<sub>max</sub></span></Checkbox>
+            <div id="order-slider-container">
+              <div id="order-slider">
+                <ControlLabel>Terms</ControlLabel>
+                <Slider tooltip={{ open: false }} style={{ width: "100%" }} min={1} max={maxNumTerms} value={numTerms} onChange={e => setNumTerms(e)} />
+              </div>
+              <div id="endpoint-match-checkboxes">
+                <ControlLabel>Match</ControlLabel>
+                <Checkbox disabled={numTerms <= 1} checked={matchLeft} onChange={() => setMatchLeft((prev) => !prev)}><span>x<sub>min</sub></span></Checkbox>
+                <Checkbox disabled={numTerms <= 1} checked={matchRight} onChange={() => setMatchRight((prev) => !prev)}><span>x<sub>max</sub></span></Checkbox>
+              </div>
             </div>
           </div>
           <div id="graphs-container">
