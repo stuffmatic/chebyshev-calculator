@@ -1,8 +1,9 @@
 import Input from "antd/lib/input"
-import { useState } from "react"
+import { useRef, useState } from "react"
 
 export const NumberInput = (props: { value: number, valueIsValid: boolean, onChange: (value: number) => void }) => {
     const [valueString, setValueString] = useState(props.value.toString())
+    const latestValidValue = useRef(props.value)
   
     const numberStringIsValid = (string: string): boolean => {
       const parseResult = parseFloat(string)
@@ -18,13 +19,11 @@ export const NumberInput = (props: { value: number, valueIsValid: boolean, onCha
         if (numberStringIsValid(e.target.value)) {
           const number = parseFloat(e.target.value)
           props.onChange(number)
+          latestValidValue.current = number
         }
       }}
       onBlur={() => {
-        if (numberStringIsValid(valueString)) {
-          const number = parseFloat(valueString)
-          setValueString(number.toString())
-        }
+        setValueString(latestValidValue.current.toString())
       }}
     />
   }

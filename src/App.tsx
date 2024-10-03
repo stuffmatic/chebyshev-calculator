@@ -160,6 +160,9 @@ const App = () => {
           y: fPoints.y - approximationPoints[idx].y
         }
       })
+      let functionMin = Math.min(...fValues)
+      let functionMax = Math.max(...fValues)
+      
       let maxError = 0
       approximationErrorPoints.forEach((error, idx) => {
         if (idx == 0 || Math.abs(error.y) > Math.abs(maxError)) {
@@ -213,10 +216,12 @@ const App = () => {
           {
             color: "red",
             style: PlotStyle.dashed,
-            legend: "Max error " + numberString(maxError),
+            legend: "Max error " + numberString(maxError) + " (" +  numberString(100 * Math.abs(maxError / (functionMax - functionMin))) + "%)",
             points: [
               { x: xMin, y: maxError }, { x: xMax, y: maxError }
             ]
+            
+            
           }
         ]
       }

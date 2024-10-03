@@ -79,7 +79,7 @@ export const drawPlot = (
     context: CanvasRenderingContext2D, 
     width: number, 
     height: number, 
-    params : IPlotParams
+    params : IPlotParams 
 ) => {
     context.clearRect(0, 0, width, height)
     context.font = fontSize + "px Inter"
