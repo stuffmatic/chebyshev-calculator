@@ -4,6 +4,7 @@ import { IPlotParams, PlotStyle, drawPlot, numberString } from "./util/plot"
 import { ChebyshevExpansion } from "./util/chebyshev-expansion"
 import Checkbox from "antd/lib/checkbox"
 import Input from "antd/lib/input"
+import Popover from "antd/lib/popover"
 import Segmented from "antd/lib/segmented"
 import Slider from "antd/lib/slider"
 import ConfigProvider from "antd/lib/config-provider"
@@ -39,6 +40,7 @@ const App = () => {
   const [isShowingHelpModal, setIsShowingHelpModal] = useState(false)
   const [targetFunctionString, setTargetFunctionString] = useState(initialTargetFunction)
   const [targetFunctionStringIsValid, setTargetFunctionStringIsValid] = useState(true)
+  const [targetFunctionInputIsFocused, setTargetFunctionInputIsFocused] = useState(false)
   const [xMin, setXMin] = useState(initialXMin)
   const [xMax, setXMax] = useState(initialXMax)
   const [numTerms, setNumTerms] = useState(initialNumTerms)
@@ -273,7 +275,20 @@ const App = () => {
           <div id="gui-controls-bar">
             <div id="function-string-input">
               <ControlLabel>f(x)</ControlLabel>
-              <Input style={{ flex: 1 }} status={targetFunctionStringIsValid ? undefined : "error"} value={targetFunctionString} onChange={e => setTargetFunctionString(e.target.value)} placeholder="f(x) as a valid javascript expression" />
+              <Popover 
+                placement="bottom" 
+                open={!targetFunctionStringIsValid && targetFunctionInputIsFocused} 
+                content={"Please enter a valid JavaScript expression of x"}
+              >
+                <Input 
+                  onFocus={() => setTargetFunctionInputIsFocused(true)} 
+                  onBlur={() => setTargetFunctionInputIsFocused(false)} 
+                  style={{ flex: 1 }} 
+                  status={targetFunctionStringIsValid ? undefined : "error"} 
+                  value={targetFunctionString} 
+                  onChange={e => setTargetFunctionString(e.target.value)} placeholder="f(x) as a valid JavaScript expression" 
+                />
+              </Popover>
             </div>
 
             <div id="x-range-inputs-container">
