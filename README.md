@@ -10,14 +10,14 @@ If you need to compute and evaluate Chebyshev expansions in Rust, check out the 
 
 ## User guide
 
-1. Enter the function you want to approximate in the _f(x)_ field as a valid Javascript expression of the variable `x`, for example `Math.cos(x)`.
-2. Specify the range to approximate using the _x min_ and _x max_ fields.
+1. Enter the function you want to approximate in the _f(x)_ field as a valid Javascript expression of the variable `x`, for example `Math.cos(x)`. Make sure the expression evaluates to a finite number on the specified interval.
+2. Specify the interval to approximate using the _x min_ and _x max_ fields.
 3. Drag the _terms_ slider until the error graph shows an acceptable maximum error. This controls the number of coefficients, i.e the number of terms in the Chebyshev expansion.
 4. Go to the _Generate code_ tab, select a language and copy the code to the clipboard. 
 
 ### Pro tips
 
-* If you're not able to approximate your function with a reasonable number of coefficients, consider splitting the range into smaller intervals and compute separate approximations for each of them.
+* If you're not able to approximate your function with a reasonable number of coefficients, consider splitting the x interval into smaller parts and compute separate approximations for each of them.
 * You can enter any valid Javascript expression of `x` into the _f(x)_ field, but if your function is too complex to be expressed as a one-liner, you may want to consider dropping the self contained [`ChebyshevExpansion`](src/util/chebyshev-expansion.ts) class into your own Typescipt code.
 
 ## Building and running

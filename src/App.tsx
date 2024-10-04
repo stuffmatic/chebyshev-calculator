@@ -226,7 +226,7 @@ const App = () => {
         ]
       }
     } else {
-      // Not all function values are finite on the range
+      // Not all function values are finite on the x interval
     }
 
     redrawApproxCanvas()
