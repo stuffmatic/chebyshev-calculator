@@ -278,7 +278,10 @@ const App = () => {
               <Popover 
                 placement="bottom" 
                 open={!targetFunctionStringIsValid && targetFunctionInputIsFocused} 
-                content={"Please enter a valid JavaScript expression of x"}
+                content={<div style={{textAlign: "center"}}>
+                  Enter a valid JavaScript expression<br></br> 
+                  of x that evaluates to a finite number.
+                </div>}
               >
                 <Input 
                   onFocus={() => setTargetFunctionInputIsFocused(true)} 
@@ -286,7 +289,11 @@ const App = () => {
                   style={{ flex: 1 }} 
                   status={targetFunctionStringIsValid ? undefined : "error"} 
                   value={targetFunctionString} 
-                  onChange={e => setTargetFunctionString(e.target.value)} placeholder="f(x) as a valid JavaScript expression" 
+                  onChange={e => {
+                    // TODO: sanitize input here to prevent alert() etc?
+                    setTargetFunctionString(e.target.value)
+                  }} 
+                  placeholder="f(x) as a valid JavaScript expression" 
                 />
               </Popover>
             </div>
