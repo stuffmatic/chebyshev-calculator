@@ -24,3 +24,5 @@ dist-ssr
 *.sw?
 
 *copy_to_site*
+
+TODO.md
