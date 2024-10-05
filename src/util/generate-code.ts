@@ -45,7 +45,7 @@ const generateCCode = (expansion: ChebyshevExpansion): string => {
         "#include <stdio.h>",
         "",
         ...evalFunctionCommentLines().map((l) => "// " + l),
-        "float chebyshev_eval(const float* coeffs, int num_coeffs, float x, float x_min, float x_max) {",
+        "float chebyshevEval(const float* coeffs, int num_coeffs, float x, float x_min, float x_max) {",
         "    float x_rel_2 = -2.0 + 4.0 * (x - x_min) / (x_max - x_min);",
         "    float d = 0.0;",
         "    float dd = 0.0;",
@@ -71,7 +71,7 @@ const generateCCode = (expansion: ChebyshevExpansion): string => {
         ...exampleEvalCommentLines().map((l) => "    // " + l),
         
         "    float x_mid = 0.5 * (x_min + x_max);",
-        "    float value_at_x_mid = chebyshev_eval(coeffs, NUM_COEFFS, x_mid, x_min, x_max);",
+        "    float value_at_x_mid = chebyshevEval(coeffs, NUM_COEFFS, x_mid, x_min, x_max);",
         '    printf("Approximated value at x=%f is %f (single precision)\\n", x_mid, value_at_x_mid);',
         '    printf("Should be ' + expansion.evaluate(0.5 * (expansion.xMin + expansion.xMax)) + ' (double precision)");',
         "    return 0;",
