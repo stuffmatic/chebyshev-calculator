@@ -14,6 +14,8 @@ const playgroundUrl = (language: TargetLanguage): string | undefined => {
             return "https://www.online-python.com/"
         case TargetLanguage.rust:
             return "https://play.rust-lang.org/?version=stable&mode=debug&edition=2021"
+        case TargetLanguage.go:
+            return "https://go.dev/play/"
     }
 }
 
