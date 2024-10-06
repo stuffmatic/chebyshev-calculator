@@ -3,13 +3,15 @@ import { ChebyshevExpansion } from "./chebyshev-expansion"
 export enum TargetLanguage {
     python = "Python",
     c = "C",
-    rust = "Rust"
+    rust = "Rust",
+    go = "Go"
 }  
 
 export const targetLanguages: TargetLanguage[] = [
     TargetLanguage.c,
     TargetLanguage.python,
-    TargetLanguage.rust
+    TargetLanguage.rust,
+    TargetLanguage.go
 ]
 
 const coefficientsCommentLines = (expansion: ChebyshevExpansion): string[] => {
@@ -43,7 +45,7 @@ const generateCCode = (expansion: ChebyshevExpansion): string => {
         "#include <stdio.h>",
         "",
         ...evalFunctionCommentLines().map((l) => "// " + l),
-        "float chebyshev_eval(const float* coeffs, int num_coeffs, float x, float x_min, float x_max) {",
+        "float chebyshevEval(const float* coeffs, int num_coeffs, float x, float x_min, float x_max) {",
         "    float x_rel_2 = -2.0 + 4.0 * (x - x_min) / (x_max - x_min);",
         "    float d = 0.0;",
         "    float dd = 0.0;",
@@ -69,7 +71,7 @@ const generateCCode = (expansion: ChebyshevExpansion): string => {
         ...exampleEvalCommentLines().map((l) => "    // " + l),
         
         "    float x_mid = 0.5 * (x_min + x_max);",
-        "    float value_at_x_mid = chebyshev_eval(coeffs, NUM_COEFFS, x_mid, x_min, x_max);",
+        "    float value_at_x_mid = chebyshevEval(coeffs, NUM_COEFFS, x_mid, x_min, x_max);",
         '    printf("Approximated value at x=%f is %f (single precision)\\n", x_mid, value_at_x_mid);',
         '    printf("Should be ' + expansion.evaluate(0.5 * (expansion.xMin + expansion.xMax)) + ' (double precision)");',
         "    return 0;",
@@ -78,6 +80,50 @@ const generateCCode = (expansion: ChebyshevExpansion): string => {
 
     return lines.join("\n")
 
+}
+
+const generateGoCode = (expansion: ChebyshevExpansion): string => {
+    const lines: string[] = [
+        "package main",
+        "",
+        "import (",
+        "\t\"fmt\"",
+        ")",
+        "",
+        ...coefficientsCommentLines(expansion).map((l) => "// " + l),
+        "var coeffs = []float32{",
+        expansion.coeffs.map((c) => "\t" + c).join(",\n") + ",",
+        "}",
+        "",
+        "const (",
+        "\txMin float32 = " + expansion.xMin,
+        "\txMax float32 = " + expansion.xMax,
+        ")",
+        "",
+        ...evalFunctionCommentLines().map((l) => "// " + l),
+        "func chebyshev_eval(coeffs []float32, x, xMin, xMax float32) float32 {",
+        "\txRel2 := -2.0 + 4.0 * (x - xMin) / (xMax - xMin)",
+        "\tvar (",
+        "\t\td, dd, temp float32",
+        "\t)",
+        "\tfor i:= len(coeffs) - 1; i > 0; i-- {",
+        "\t\ttemp = d",
+        "\t\td = xRel2 * d - dd + coeffs[i]",
+        "\t\tdd = temp",
+        "\t}",
+        "\treturn 0.5 * xRel2 * d - dd + 0.5 * coeffs[0]",
+        "}",
+        "",
+        "func main() {",
+        ...exampleEvalCommentLines().map((l) => "\t// " + l),
+        "\tvar xMid float32 = 0.5 * (xMin + xMax)",
+        "\tvar valueAtXMid float32 = chebyshev_eval(coeffs, xMid, xMin, xMax)",
+        "\tfmt.Printf(\"Approximated value at x=%f is %f (single precision)\\n\", xMid, valueAtXMid)",
+        "\tfmt.Printf(\"Should be " + expansion.evaluate(0.5 * (expansion.xMin + expansion.xMax)) + " (double precision)\\n\")",
+        "}"
+        
+    ] 
+    return lines.join("\n")
 }
 
 const generatePythonCode = (expansion: ChebyshevExpansion): string => {
@@ -154,6 +200,9 @@ export const generateCode = (language: TargetLanguage, expansion: ChebyshevExpan
         }
         case TargetLanguage.rust: {
             return generateRustCode(expansion)
+        }
+        case TargetLanguage.go: {
+            return generateGoCode(expansion)
         }
     }
 }
