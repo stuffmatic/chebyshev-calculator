@@ -91,7 +91,7 @@ const generateGoCode = (expansion: ChebyshevExpansion): string => {
         ")",
         "",
         ...evalFunctionCommentLines().map((l) => "// " + l),
-        "func chebyshev_eval(coeffs []float32, x, xMin, xMax float32) float32 {",
+        "func chebyshevEval(coeffs []float32, x, xMin, xMax float32) float32 {",
         "\txRel2 := -2.0 + 4.0 * (x - xMin) / (xMax - xMin)",
         "\tvar (",
         "\t\td, dd, temp float32",
@@ -117,7 +117,7 @@ const generateGoCode = (expansion: ChebyshevExpansion): string => {
         "func main() {",
         ...exampleEvalCommentLines().map((l) => "\t// " + l),
         "\tvar xMid float32 = 0.5 * (xMin + xMax)",
-        "\tvar valueAtXMid float32 = chebyshev_eval(coeffs, xMid, xMin, xMax)",
+        "\tvar valueAtXMid float32 = chebyshevEval(coeffs, xMid, xMin, xMax)",
         "\tfmt.Printf(\"Approximated value at x=%f is %f (single precision)\\n\", xMid, valueAtXMid)",
         "\tfmt.Printf(\"Should be " + expansion.evaluate(0.5 * (expansion.xMin + expansion.xMax)) + " (double precision)\\n\")",
         "}"
