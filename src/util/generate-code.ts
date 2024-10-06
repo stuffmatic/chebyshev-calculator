@@ -1,17 +1,17 @@
 import { ChebyshevExpansion } from "./chebyshev-expansion"
 
 export enum TargetLanguage {
-    python = "Python",
     c = "C",
-    rust = "Rust",
-    go = "Go"
+    go = "Go",
+    python = "Python",
+    rust = "Rust"
 }  
 
 export const targetLanguages: TargetLanguage[] = [
     TargetLanguage.c,
+    TargetLanguage.go,
     TargetLanguage.python,
-    TargetLanguage.rust,
-    TargetLanguage.go
+    TargetLanguage.rust
 ]
 
 const coefficientsCommentLines = (expansion: ChebyshevExpansion): string[] => {
@@ -90,16 +90,6 @@ const generateGoCode = (expansion: ChebyshevExpansion): string => {
         "\t\"fmt\"",
         ")",
         "",
-        ...coefficientsCommentLines(expansion).map((l) => "// " + l),
-        "var coeffs = []float32{",
-        expansion.coeffs.map((c) => "\t" + c).join(",\n") + ",",
-        "}",
-        "",
-        "const (",
-        "\txMin float32 = " + expansion.xMin,
-        "\txMax float32 = " + expansion.xMax,
-        ")",
-        "",
         ...evalFunctionCommentLines().map((l) => "// " + l),
         "func chebyshev_eval(coeffs []float32, x, xMin, xMax float32) float32 {",
         "\txRel2 := -2.0 + 4.0 * (x - xMin) / (xMax - xMin)",
@@ -113,6 +103,16 @@ const generateGoCode = (expansion: ChebyshevExpansion): string => {
         "\t}",
         "\treturn 0.5 * xRel2 * d - dd + 0.5 * coeffs[0]",
         "}",
+        "",
+        ...coefficientsCommentLines(expansion).map((l) => "// " + l),
+        "var coeffs = []float32{",
+        expansion.coeffs.map((c) => "\t" + c).join(",\n") + ",",
+        "}",
+        "",
+        "const (",
+        "\txMin float32 = " + expansion.xMin,
+        "\txMax float32 = " + expansion.xMax,
+        ")",
         "",
         "func main() {",
         ...exampleEvalCommentLines().map((l) => "\t// " + l),
