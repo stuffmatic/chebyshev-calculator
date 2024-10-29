@@ -67,8 +67,9 @@ export const numberString = (number: number): string => {
     const exponential = Math.abs(number) < 0.0001 && number != 0
     let result = exponential ? number.toExponential(6) : number.toPrecision(6)
     while ((result.endsWith("0") || result.endsWith(".")) && !exponential) {
+        const isPeriod = result.endsWith(".");
         result = result.slice(0, result.length - 1)
-        if (result == "0") {
+        if (result == "0" || isPeriod) {
             break
         }
     }
