@@ -2,6 +2,7 @@ import { ChebyshevExpansion } from "./chebyshev-expansion"
 
 export enum TargetLanguage {
     c = "C",
+    csharp = "C#",
     go = "Go",
     python = "Python",
     rust = "Rust"
@@ -9,6 +10,7 @@ export enum TargetLanguage {
 
 export const targetLanguages: TargetLanguage[] = [
     TargetLanguage.c,
+    TargetLanguage.csharp,
     TargetLanguage.go,
     TargetLanguage.python,
     TargetLanguage.rust
@@ -80,6 +82,38 @@ const generateCCode = (expansion: ChebyshevExpansion): string => {
 
     return lines.join("\n")
 
+}
+
+const generateCSharpCode = (expansion: ChebyshevExpansion): string => {
+    return [
+        ...coefficientsCommentLines(expansion).map((l) => "// " + l),
+        "float[] coeffs = [",
+            expansion.coeffs.map((c) => "    " + c + "f").join(",\n"),
+        "];",
+        "const float xMin = " + expansion.xMin + "f;",
+        "const float xMax = " + expansion.xMax + "f;",
+        "",
+        ...exampleEvalCommentLines().map((l) => "// " + l),
+        
+        "const float xMid = 0.5f * (xMin + xMax);",
+        "float valueAtXMid = ChebyshevEval(coeffs, xMid, xMin, xMax);",
+        'Console.WriteLine($"Approximated value at x={xMid} is {valueAtXMid} (single precision)");',
+        'Console.WriteLine("Should be ' + expansion.evaluate(0.5 * (expansion.xMin + expansion.xMax)) + ' (double precision)");',
+        "return;",
+        "",
+        ...evalFunctionCommentLines().map((l) => "// " + l),
+        "static float ChebyshevEval(ReadOnlySpan<float> coeffs, float x, float xMin, float xMax) {",
+        "    float xRel2 = -2f + 4f * (x - xMin) / (xMax - xMin);",
+        "    float d = 0.0f;",
+        "    float dd = 0.0f;",
+        "    for (int i = coeffs.Length - 1; i > 0; i--) {",
+        "        float temp = d;",
+        "        d = xRel2 * d - dd + coeffs[i];",
+        "        dd = temp;",
+        "    }",
+        "    return 0.5f * xRel2 * d - dd + 0.5f * coeffs[0];",
+        "}",
+    ].join("\n")
 }
 
 const generateGoCode = (expansion: ChebyshevExpansion): string => {
@@ -194,6 +228,9 @@ export const generateCode = (language: TargetLanguage, expansion: ChebyshevExpan
     switch (language) {
         case TargetLanguage.c: {
             return generateCCode(expansion)
+        }
+        case TargetLanguage.csharp: {
+            return generateCSharpCode(expansion)
         }
         case TargetLanguage.python: {
             return generatePythonCode(expansion)
